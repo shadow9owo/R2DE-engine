@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include "Log.hpp"
 
 namespace Utils
 {

@@ -4,7 +4,6 @@
 #include <string>
 
 #include <cstdint> // for int64_t
-#include <variant>
 
 #include <vector>
 
@@ -48,6 +47,7 @@ struct Value {
     Value(const char* v) { type = ValueType::STRING; data.str = v; }
 };
 
+
 enum opcodes
 {
     mov,
@@ -78,9 +78,17 @@ struct Module
     void* eval;
 };
 
+union FunctionUnion {
+    Node node;
+    Module module;
+
+    FunctionUnion() {}
+    ~FunctionUnion() {}
+};
+
 struct Object
 {
-    std::variant<Node, Module> function;
+    FunctionUnion function;
     Vector2 position; //editor specific discard on compilation or set to nullptr
 };
 

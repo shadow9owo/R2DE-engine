@@ -4,6 +4,8 @@
 #include "window.hpp"
 #include "main.hpp"
 
+#include "utils.hpp"
+
 RenderTexture2D text;
 Camera2D camera;
 
@@ -27,7 +29,7 @@ int main()
 	camera.rotation = 0.0f;
 	camera.zoom = 1.0f;
 
-    while (!WindowShouldClose())
+    while (!WindowShouldClose() && !::shouldclose)
     {
         BeginDrawing();
 
@@ -55,7 +57,6 @@ int main()
 
         EndDrawing();
     }
-
 
 	UnloadRenderTexture(text);
 	CloseWindow();

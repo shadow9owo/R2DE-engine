@@ -5,6 +5,9 @@
 #include "utils.hpp"
 
 #include "Utils/Log.hpp"
+#include "window.hpp"
+
+#include "Utils/wrapper/pfdwrapper.hpp"
 
 namespace Window
 {
@@ -13,18 +16,46 @@ namespace Window
 		void Quit()
 		{
 			::Utils::Log("Quit triggered");
+			::shouldclose = true;
 			return;
 		}
 
 		void Save()
 		{
+			wrapper::SaveProjectFile();
+
+			if (!data::filepath.empty())
+			{
+
+			}
+			else 
+			{
+				return; // save cancelled
+			}
 			::Utils::Log("Save triggered");
 			return;
 		}
 
 		void Load()
 		{
+			wrapper::OpenProjectFile();
+
+			if (!data::contentsofproject.empty())
+			{
+				
+			}
+			else
+			{
+				return; // Load cancelled
+			}
+
 			::Utils::Log("Load triggered");
+			return;
+		}
+
+		void Build()
+		{
+			::Utils::Log("Build triggered");
 			return;
 		}
 	}
@@ -36,14 +67,23 @@ namespace Window
 		mouse = GetMousePosPro();
 		data::activebuttons = {};
 
-		Button Quit = { false, &Utils::Quit,"Quit",false,{120,120} };
-		data::activebuttons.push_back(Quit);
+		Button Quit = { false, &Utils::Quit,"Quit",false,{0,670} };
 
-		Button Save = { false, &Utils::Save,"Save",false,{120,240} };
-		data::activebuttons.push_back(Save);
+		Button Save = { false, &Utils::Save,"Save",false,{0,670} };
 
-		Button Load = { false, &Utils::Load,"Load",false,{120,360} };
+		Button Load = { false, &Utils::Load,"Load",false,{0,670} };
+
+		Button Build = { false, &Utils::Build,"Build",false,{0,670} };
+		
+		Quit.position.x = offset;
+		Save.position.x = Quit.position.x + Qmessure(Quit).x + offset;
+		Load.position.x = Save.position.x + Qmessure(Save).x + offset;
+		Build.position.x = Load.position.x + Qmessure(Load).x + offset;
+		
 		data::activebuttons.push_back(Load);
+		data::activebuttons.push_back(Save);
+		data::activebuttons.push_back(Quit);
+		data::activebuttons.push_back(Build);
 
 		return;
 	}
@@ -84,7 +124,7 @@ namespace Window
 						}
 						else
 						{
-							::Utils::Log("unitialized pointer or memory corruption accured");
+							::Utils::LogFatal("Error", "unitialized pointer or memory corruption accured");
 						}
 					}
 				}
@@ -109,14 +149,23 @@ namespace Window
 		}
 	}
 
+	void debug()
+	{
+		DrawText(std::to_string(mouse.x).c_str(), 0, 0, 24, BLACK);
+		DrawText(std::to_string(mouse.y).c_str(), 0, 24, 24, BLACK);
+
+		return;
+	}
+
 	void DoRender()
 	{
 		mouse = GetMousePosPro();
 
 		callbacks::DoButtonCallBacks();
 
-		DrawText(std::to_string(mouse.x).c_str(), 0, 0, 24, BLACK);
-		DrawText(std::to_string(mouse.y).c_str(),0,24,24,BLACK);
+		if (::debug) {
+			debug();
+		}
 		return;
 	}
 

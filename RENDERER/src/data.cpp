@@ -2,6 +2,7 @@
 
 #include <string>
 #include "types.hpp"
+#include "data.hpp"
 
 namespace parser
 {

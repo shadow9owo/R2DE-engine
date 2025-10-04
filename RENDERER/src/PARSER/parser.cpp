@@ -2,6 +2,7 @@
 
 #include "../data.hpp"
 #include "../types.hpp"
+#include "parser.hpp"
 
 #include <raylib.h>
 #include <limits>

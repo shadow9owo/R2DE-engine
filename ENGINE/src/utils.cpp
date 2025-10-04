@@ -5,8 +5,12 @@
 #include <raylib.h>
 
 #include "main.hpp"
+#include "utils.hpp"
 
 int offset = 16; //idk depends ig
+bool debug = true;
+
+bool shouldclose = false;
 
 bool HasProjects()
 {
@@ -33,8 +37,11 @@ Rectangle GetButtonSize(Button& button)
 	return rect;
 }
 
-
-
+Vector2 Qmessure(Button& button)
+{
+	Rectangle rect = GetButtonSize(button);
+	return { rect.width, rect.height };
+}
 
 Vector2 GetMousePosPro()
 {
@@ -43,3 +50,5 @@ Vector2 GetMousePosPro()
 
 	return output;
 }
+
+
