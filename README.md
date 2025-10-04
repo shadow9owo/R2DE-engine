@@ -13,7 +13,7 @@ An experimental 2d game engine
 ## Features
 
 - Decompiler w/ assembly like syntax
-- Visual Code Editor
+- Visual (node based) Code Editor
 - Cross platform
 
 
