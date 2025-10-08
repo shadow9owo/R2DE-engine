@@ -1,4 +1,12 @@
-#include "raylib.h"
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
+
+namespace rl
+{
+	#include "raylib.h"
+}
 #include <iostream>
 
 #include "types.hpp"
@@ -9,7 +17,7 @@
 
 int main ()
 {
-	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
+	rl::SetConfigFlags(rl::FLAG_VSYNC_HINT | rl::FLAG_WINDOW_HIGHDPI);
 
 	if (!parser::IsValid())
 	{
@@ -17,27 +25,27 @@ int main ()
 		return 1; //corrupted
 	}
 
-	InitWindow(1280, 800, "game");
+	rl::InitWindow(1280, 800, "game");
 
-	RenderTexture2D text = LoadRenderTexture(1280,720);
+	rl::RenderTexture2D text = rl::LoadRenderTexture(1280,720);
 
-	SetTextureFilter(text.texture, TEXTURE_FILTER_POINT);
+	rl::SetTextureFilter(text.texture, rl::TEXTURE_FILTER_POINT);
 
-	while (!WindowShouldClose())
+	while (!rl::WindowShouldClose())
 	{
 		BeginTextureMode(text);
 
-		BeginDrawing();
+		rl::BeginDrawing();
 
-		ClearBackground(BLACK);
+		rl::ClearBackground(rl::BLACK);
 
-		DrawText("RENDERER GAME RENDERER", 200,200,20,WHITE);
+		rl::DrawText("RENDERER GAME RENDERER", 200,200,20, rl::WHITE);
 
-		EndDrawing();
+		rl::EndDrawing();
 
-		EndTextureMode();
+		rl::EndTextureMode();
 	}
 
-	CloseWindow();
+	rl::CloseWindow();
 	return 0;
 }

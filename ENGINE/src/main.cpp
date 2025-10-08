@@ -1,25 +1,39 @@
-#include "raylib.h"
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 
+namespace rl
+{
+    #include "raylib.h"
+}
+
+#include "Utils/Log.hpp"
 #include "utils.h"
 #include "window.hpp"
 #include "main.hpp"
 
 #include "utils.hpp"
 
-RenderTexture2D text;
-Camera2D camera;
+rl::RenderTexture2D text;
+rl::Camera2D camera;
 
 int main()
 {
-	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI | FLAG_FULLSCREEN_MODE);
+    rl::SetConfigFlags(rl::FLAG_VSYNC_HINT | rl::FLAG_WINDOW_HIGHDPI | rl::FLAG_WINDOW_RESIZABLE);
 
-	InitWindow(GetMonitorWidth(0), GetMonitorHeight(0), "GAME");
+    rl::InitWindow(1280, 720, "GAME");
 
-	SetWindowSize(GetMonitorWidth(0), GetMonitorHeight(0));
+    if (rl::GetScreenWidth() < 1280 || rl::GetScreenHeight() < 720)
+    {
+        Utils::LogFatal("Initialization error", "screen sizes below 720p are not supported");
+        return -1; //crash the ui is not made for such small resolutions
+    }
 
-	text = LoadRenderTexture(1280, 720);
+    rl::SetWindowMinSize(1280, 720);
 
-	SetTextureFilter(text.texture, TEXTURE_FILTER_POINT);
+	text = rl::LoadRenderTexture(1280, 720);
+
+    rl::SetTextureFilter(text.texture, rl::TEXTURE_FILTER_POINT);
 
 	Window::DoInit();
 
@@ -29,36 +43,43 @@ int main()
 	camera.rotation = 0.0f;
 	camera.zoom = 1.0f;
 
-    while (!WindowShouldClose() && !::shouldclose)
+    while (!rl::WindowShouldClose() && !::shouldclose)
     {
-        BeginDrawing();
+        if (rl::IsWindowResized())
+        {
+            rl::Vector2 size = { (float)rl::GetScreenWidth(), (float)rl::GetScreenHeight() };
+            rl::UnloadRenderTexture(text); // i hate this
+            rl::LoadRenderTexture(size.x, size.y);
+        }
 
-        ClearBackground(WHITE);
+        rl::BeginDrawing();
 
-        BeginTextureMode(text);
-        ClearBackground(RAYWHITE);
+        rl::ClearBackground(rl::WHITE);
+
+        rl::BeginTextureMode(text);
+        rl::ClearBackground(rl::RAYWHITE);
 
         Window::DoRender();
 
-        EndTextureMode();
+        rl::EndTextureMode();
 
-        DrawTexturePro(
+        rl::DrawTexturePro(
             text.texture,
-            Rectangle{ 0,0,(float)text.texture.width,-(float)text.texture.height },
-            Rectangle{ 0,0,text.texture.width * (float)GetScreenWidth() / (float)text.texture.width, text.texture.height * (float)GetScreenHeight() / (float)text.texture.height },
-            Vector2{ 0,0 },
+            rl::Rectangle{ 0,0,(float)text.texture.width,-(float)text.texture.height },
+            rl::Rectangle{ 0,0,text.texture.width * (float)rl::GetScreenWidth() / (float)text.texture.width, text.texture.height * (float)rl::GetScreenHeight() / (float)text.texture.height },
+            rl::Vector2{ 0,0 },
             0.0f,
-            WHITE
+            rl::WHITE
         );
 
-        BeginMode2D(camera);
+        rl::BeginMode2D(camera);
         Window::DoCameraRender();
-        EndMode2D();
+        rl::EndMode2D();
 
-        EndDrawing();
+        rl::EndDrawing();
     }
 
-	UnloadRenderTexture(text);
-	CloseWindow();
+    rl::UnloadRenderTexture(text);
+    rl::CloseWindow();
 	return 0;
 }

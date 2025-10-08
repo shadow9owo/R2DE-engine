@@ -2,12 +2,12 @@
 
 namespace projecthandling
 {
-	namespace export
+	namespace f_export
 	{
-
+		extern bool f_export();
 	}
-	namespace import
+	namespace f_import
 	{
-
+		extern bool f_import();
 	}
 }

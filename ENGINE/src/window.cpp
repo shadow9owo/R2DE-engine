@@ -1,13 +1,21 @@
-#include <raylib.h>
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
+namespace rl
+{
+	#include <raylib.h>
+}
+
+#include "Utils/wrapper/pfdwrapper.hpp"
 
 #include "types.hpp"
 #include "data.hpp"
 #include "utils.hpp"
 
 #include "Utils/Log.hpp"
+#include "Utils/export/exportUtils.hpp"
 #include "window.hpp"
-
-#include "Utils/wrapper/pfdwrapper.hpp"
 
 namespace Window
 {
@@ -26,7 +34,7 @@ namespace Window
 
 			if (!data::filepath.empty())
 			{
-
+				projecthandling::f_export::f_export();
 			}
 			else 
 			{
@@ -42,7 +50,7 @@ namespace Window
 
 			if (!data::contentsofproject.empty())
 			{
-				
+				projecthandling::f_import::f_import();
 			}
 			else
 			{
@@ -60,7 +68,7 @@ namespace Window
 		}
 	}
 
-	Vector2 mouse = {0,0};
+	rl::Vector2 mouse = {0,0};
 
 	void DoInit()
 	{
@@ -116,7 +124,7 @@ namespace Window
 			{
 				if (data::activebuttons[i].hovering)
 				{
-					if (IsMouseButtonPressed(0))
+					if (rl::IsMouseButtonPressed(0))
 					{
 						if (data::activebuttons[i].exec)
 						{
@@ -132,27 +140,37 @@ namespace Window
 
 			for (int i = (int)data::activebuttons.size() - 1; i >= 0; --i)
 			{
-				Vector2 text = MeasureTextEx(data::activebuttons[i].font, data::activebuttons[i].text.c_str(), data::activebuttons[i].fontsize, 0.2f);
-				Rectangle getsize = GetButtonSize(data::activebuttons[i]);
+				rl::Vector2 text = MeasureTextEx(data::activebuttons[i].font, data::activebuttons[i].text.c_str(), data::activebuttons[i].fontsize, 0.2f);
+				rl::Rectangle getsize = GetButtonSize(data::activebuttons[i]);
 				if (data::activebuttons[i].hovering)
 				{
-					DrawRectanglePro({ data::activebuttons[i].position.x,data::activebuttons[i].position.y,getsize.width,getsize.height}, { 0,0 }, 0, BLACK);
-					DrawTextPro(data::activebuttons[i].font, data::activebuttons[i].text.c_str(), { (data::activebuttons[i].position.x + getsize.width / 2) - text.x / 2, (data::activebuttons[i].position.y + getsize.height / 2) - text.y / 2 }, {0,0}, 0, data::activebuttons[i].fontsize, 0.2f, WHITE);
+					rl::DrawRectanglePro({ data::activebuttons[i].position.x,data::activebuttons[i].position.y,getsize.width,getsize.height}, { 0,0 }, 0, rl::BLACK);
+					DrawTextPro(data::activebuttons[i].font, data::activebuttons[i].text.c_str(), { (data::activebuttons[i].position.x + getsize.width / 2) - text.x / 2, (data::activebuttons[i].position.y + getsize.height / 2) - text.y / 2 }, {0,0}, 0, data::activebuttons[i].fontsize, 0.2f, rl::WHITE);
 				}
 				else 
 				{
-					DrawRectanglePro({ data::activebuttons[i].position.x,data::activebuttons[i].position.y,getsize.width,getsize.height }, { 0,0 }, 0, DARKGRAY);
-					DrawTextPro(data::activebuttons[i].font, data::activebuttons[i].text.c_str(), { (data::activebuttons[i].position.x + getsize.width / 2) - text.x /2, (data::activebuttons[i].position.y + getsize.height / 2) - text.y / 2 }, {0,0}, 0, data::activebuttons[i].fontsize, 0.2f, WHITE);
+					rl::DrawRectanglePro({ data::activebuttons[i].position.x,data::activebuttons[i].position.y,getsize.width,getsize.height }, { 0,0 }, 0, rl::DARKGRAY);
+					DrawTextPro(data::activebuttons[i].font, data::activebuttons[i].text.c_str(), { (data::activebuttons[i].position.x + getsize.width / 2) - text.x /2, (data::activebuttons[i].position.y + getsize.height / 2) - text.y / 2 }, {0,0}, 0, data::activebuttons[i].fontsize, 0.2f, rl::WHITE);
 				}
 			}
+			return;
+		}
+
+		void DoInputCallbacksOnScreen()
+		{
+			return;
+		}
+
+		void DoInputCallbacksCamera()
+		{
 			return;
 		}
 	}
 
 	void debug()
 	{
-		DrawText(std::to_string(mouse.x).c_str(), 0, 0, 24, BLACK);
-		DrawText(std::to_string(mouse.y).c_str(), 0, 24, 24, BLACK);
+		rl::DrawText(std::to_string(mouse.x).c_str(), 0, 0, 24, rl::BLACK);
+		rl::DrawText(std::to_string(mouse.y).c_str(), 0, 24, 24, rl::BLACK);
 
 		return;
 	}
@@ -162,6 +180,7 @@ namespace Window
 		mouse = GetMousePosPro();
 
 		callbacks::DoButtonCallBacks();
+		callbacks::DoInputCallbacksOnScreen(); //local area
 
 		if (::debug) {
 			debug();
@@ -171,6 +190,7 @@ namespace Window
 
 	void DoCameraRender()
 	{
+		callbacks::DoInputCallbacksCamera(); //global area
 		return;
 	}
 }

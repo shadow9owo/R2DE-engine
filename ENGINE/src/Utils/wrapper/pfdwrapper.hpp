@@ -1,9 +1,9 @@
 #pragma once
 #include <string>
+#include <vector>
 
 namespace wrapper {
-    extern void LogErr(const std::string& msg);
-
-    extern void SaveProjectFile();
-    extern void OpenProjectFile();
+    void LogErr(const std::string& msg);
+    void SaveProjectFile();
+    void OpenProjectFile();
 }

@@ -1,6 +1,9 @@
 #pragma once
 
-#include <raylib.h>
+namespace rl
+{
+    #include <raylib.h>
+}
 #include <string>
 
 #include <cstdint> // for int64_t
@@ -13,9 +16,9 @@ struct Button
 	void* exec = nullptr;
 	std::string text = "nul";
 	bool disabled = false;
-    Vector2 position = { 0,0 }; //its like if this value got added up every time a new definition is made
+    rl::Vector2 position = { 0,0 }; //its like if this value got added up every time a new definition is made
     int fontsize = 24;
-    Font font = GetFontDefault();
+    rl::Font font = rl::GetFontDefault();
 };
 
 enum class ValueType {
@@ -89,7 +92,7 @@ union FunctionUnion {
 struct Object
 {
     FunctionUnion function;
-    Vector2 position; //editor specific discard on compilation or set to nullptr
+    rl::Vector2 position; //editor specific discard on compilation or set to nullptr
 };
 
 struct Project

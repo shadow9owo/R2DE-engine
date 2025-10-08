@@ -1,3 +1,6 @@
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 #include "types.hpp"
 #include <vector>
 #include "data.hpp"

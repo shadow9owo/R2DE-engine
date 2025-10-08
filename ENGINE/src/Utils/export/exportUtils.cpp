@@ -2,17 +2,17 @@
 
 namespace projecthandling
 {
-	namespace export
+	namespace f_export
 	{
-		bool export()
+		bool f_export()
 		{
 			//do export here
 			return true;
 		}
 	}
-	namespace import
+	namespace f_import
 	{
-		bool import()
+		bool f_import()
 		{
 			//do export here
 			return true;
