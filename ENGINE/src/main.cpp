@@ -8,7 +8,6 @@ namespace rl
 }
 
 #include "Utils/Log.hpp"
-#include "utils.h"
 #include "window.hpp"
 #include "main.hpp"
 

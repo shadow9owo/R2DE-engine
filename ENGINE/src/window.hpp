@@ -15,6 +15,7 @@ namespace Window
 		extern void DoInputCallbacksOnScreen();
 		extern void DoInputCallbacksCamera();
 	}
+	extern void debug();
 	extern void DoRender();
 	extern void DoCameraRender();
 }

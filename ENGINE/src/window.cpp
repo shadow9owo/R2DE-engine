@@ -17,8 +17,12 @@ namespace rl
 #include "Utils/export/exportUtils.hpp"
 #include "window.hpp"
 
+#include <iostream>
+
 namespace Window
 {
+	rl::Vector2 mouse = { 0,0 };
+
 	namespace Utils
 	{
 		void Quit()
@@ -67,8 +71,6 @@ namespace Window
 			return;
 		}
 	}
-
-	rl::Vector2 mouse = {0,0};
 
 	void DoInit()
 	{
@@ -158,6 +160,14 @@ namespace Window
 
 		void DoInputCallbacksOnScreen()
 		{
+			if (rl::IsMouseButtonPressed(0))
+			{
+				::Utils::Log("left mouse button pressed");
+			}
+			else if (rl::IsMouseButtonPressed(1))
+			{
+				::Utils::Log("right mouse button pressed");
+			}
 			return;
 		}
 
@@ -169,8 +179,8 @@ namespace Window
 
 	void debug()
 	{
-		rl::DrawText(std::to_string(mouse.x).c_str(), 0, 0, 24, rl::BLACK);
-		rl::DrawText(std::to_string(mouse.y).c_str(), 0, 24, 24, rl::BLACK);
+		rl::DrawTextPro(rl::GetFontDefault(), std::to_string(mouse.x).c_str(), { 0, 0 },{ 0, 0 },0, 24, 0.2f, rl::BLACK);
+		rl::DrawTextPro(rl::GetFontDefault(), std::to_string(mouse.y).c_str(), { 0, 24 },{0,0}, 0,24,0.2f, rl::BLACK);
 
 		return;
 	}
@@ -182,9 +192,11 @@ namespace Window
 		callbacks::DoButtonCallBacks();
 		callbacks::DoInputCallbacksOnScreen(); //local area
 
-		if (::debug) {
-			debug();
+		if (::debug)
+		{
+			::Window::debug();
 		}
+
 		return;
 	}
 

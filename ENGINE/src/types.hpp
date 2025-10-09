@@ -4,11 +4,11 @@ namespace rl
 {
     #include <raylib.h>
 }
+
 #include <string>
-
 #include <cstdint> // for int64_t
-
 #include <vector>
+#include <memory>
 
 struct Button
 {
@@ -81,21 +81,48 @@ struct Module
     void* eval;
 };
 
-union FunctionUnion {
+struct FunctionUnion
+{
     Node node;
     Module module;
 
     FunctionUnion() {}
     ~FunctionUnion() {}
+
+    FunctionUnion(FunctionUnion&& other) noexcept
+    {
+        node = std::move(other.node);
+        module = std::move(other.module);
+    }
+
+    FunctionUnion& operator=(FunctionUnion&& other) noexcept
+    {
+        if (this != &other)
+        {
+            node = std::move(other.node);
+            module = std::move(other.module);
+        }
+        return *this;
+    }
+
+    FunctionUnion(const FunctionUnion&) = delete;
+    FunctionUnion& operator=(const FunctionUnion&) = delete;
 };
 
 struct Object
 {
     FunctionUnion function;
-    rl::Vector2 position; //editor specific discard on compilation or set to nullptr
+    rl::Vector2 position; // throw away later useless info
+
+    Object() = default;
+    Object(Object&&) = default;
+    Object& operator=(Object&&) = default;
+
+    Object(const Object&) = delete;
+    Object& operator=(const Object&) = delete;
 };
 
 struct Project
 {
-    std::vector<Object> objects;
+    std::vector<std::unique_ptr<Object>> objects;
 };
