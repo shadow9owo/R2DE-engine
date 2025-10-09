@@ -63,7 +63,11 @@ enum opcodes
     jle,
     ret,
     cmp,
-    nop
+    nop,
+    div,
+    mul,
+    dec,
+    inc
 };
 
 struct Node

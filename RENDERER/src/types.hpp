@@ -1,7 +1,25 @@
 #pragma once
 
+namespace rl
+{
+#include <raylib.h>
+}
+
+#include <string>
 #include <cstdint> // for int64_t
-#include <cstring>
+#include <vector>
+#include <memory>
+
+struct Button
+{
+    bool hovering = false;
+    void* exec = nullptr;
+    std::string text = "nul";
+    bool disabled = false;
+    rl::Vector2 position = { 0,0 }; //its like if this value got added up every time a new definition is made
+    int fontsize = 24;
+    rl::Font font = rl::GetFontDefault();
+};
 
 enum class ValueType {
     INT, INT64, FLOAT, CHAR, PTR, STRING, NONE
@@ -30,4 +48,84 @@ struct Value {
     Value(char v) { type = ValueType::CHAR; data.c = v; }
     Value(void* v) { type = ValueType::PTR; data.ptr = v; }
     Value(const char* v) { type = ValueType::STRING; data.str = v; }
+};
+
+
+enum opcodes
+{
+    mov,
+    jne,
+    je,
+    jg,
+    jge,
+    jz,
+    jl,
+    jle,
+    ret,
+    cmp,
+    nop,
+    div,
+    mul,
+    dec,
+    inc
+};
+
+struct Node
+{
+    opcodes type = nop;
+    Value Arg1, Arg2, Arg3;
+    Value Output;
+};
+
+struct Module
+{
+    std::string name;
+    Value Arg1, Arg2, Arg3;
+    Value Output;
+    void* eval;
+};
+
+struct FunctionUnion
+{
+    Node node;
+    Module module;
+
+    FunctionUnion() {}
+    ~FunctionUnion() {}
+
+    FunctionUnion(FunctionUnion&& other) noexcept
+    {
+        node = std::move(other.node);
+        module = std::move(other.module);
+    }
+
+    FunctionUnion& operator=(FunctionUnion&& other) noexcept
+    {
+        if (this != &other)
+        {
+            node = std::move(other.node);
+            module = std::move(other.module);
+        }
+        return *this;
+    }
+
+    FunctionUnion(const FunctionUnion&) = delete;
+    FunctionUnion& operator=(const FunctionUnion&) = delete;
+};
+
+struct Object
+{
+    FunctionUnion function;
+
+    Object() = default;
+    Object(Object&&) = default;
+    Object& operator=(Object&&) = default;
+
+    Object(const Object&) = delete;
+    Object& operator=(const Object&) = delete;
+};
+
+struct Project
+{
+    std::vector<std::unique_ptr<Object>> objects;
 };
