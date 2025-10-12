@@ -50,29 +50,28 @@ struct Value {
     Value(const char* v) { type = ValueType::STRING; data.str = v; }
 };
 
-
 enum opcodes
 {
-    mov,
-    jne,
-    je,
-    jg,
-    jge,
-    jz,
-    jl,
-    jle,
-    ret,
-    cmp,
-    nop,
-    div,
-    mul,
-    dec,
-    inc
+    r_mov,
+    r_jne,
+    r_je,
+    r_jg,
+    r_jge,
+    r_jz,
+    r_jl,
+    r_jle,
+    r_ret,
+    r_cmp,
+    r_nop,
+    r_div, // of value 11 redefined
+    r_mul,
+    r_dec,
+    r_inc
 };
 
 struct Node
 {
-    opcodes type = nop;
+    opcodes type = r_nop;
     Value Arg1, Arg2, Arg3;
     Value Output;
 };

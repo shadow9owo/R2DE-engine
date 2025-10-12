@@ -9,7 +9,7 @@
 namespace data
 {
 	std::vector<Button> activebuttons;
-	Project project;
+	Project project = {};
 	std::string filepath = "";
 	std::vector<std::string> contentsofproject;
 }

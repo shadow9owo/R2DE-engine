@@ -95,7 +95,62 @@ namespace Window
 		data::activebuttons.push_back(Quit);
 		data::activebuttons.push_back(Build);
 
+		//active ui
+
 		return;
+	}
+
+	namespace UI
+	{
+		namespace SpawnerDrop
+		{
+			void SpawnFunction()
+			{
+				::Utils::Log("SpawnFunction()");
+				WipeDrop();
+				return;
+			}
+
+			void MakeModule()
+			{
+				::Utils::Log("MakeModule()");
+				WipeDrop();
+				return;
+			}
+
+			void List()
+			{
+				::Utils::Log("List()");
+				WipeDrop();
+				return;
+			}
+
+			void Delete()
+			{
+				::Utils::Log("Delete()");
+				WipeDrop();
+				return;
+			}
+
+			//utility
+			void WipeDrop()
+			{
+				void* SpawnFunction = (*UI::SpawnerDrop::SpawnFunction);
+				void* MakeModule = (*UI::SpawnerDrop::MakeModule);
+				void* List = (*UI::SpawnerDrop::List);
+				void* Delete = (*UI::SpawnerDrop::Delete);
+
+				for (int i = (int)data::activebuttons.size() - 1; i >= 0; --i)
+				{
+					if (data::activebuttons[i].exec == SpawnFunction || data::activebuttons[i].exec == MakeModule || data::activebuttons[i].exec == List || data::activebuttons[i].exec == Delete)
+					{
+						data::activebuttons.erase(data::activebuttons.begin() + i);
+					}
+				}
+
+				return;
+			}
+		}
 	}
 
 	namespace callbacks
@@ -112,7 +167,7 @@ namespace Window
 
 			for (int i = (int)data::activebuttons.size() - 1; i >= 0; --i)
 			{
-				if (CheckCollisionRecs(GetButtonSize(data::activebuttons[i]),{mouse.x,mouse.y,4,4}))
+				if (CheckCollisionRecs(GetButtonSize(data::activebuttons[i]),{mouse.x,mouse.y,1,1}))
 				{
 					data::activebuttons[i].hovering = true;
 				}
@@ -162,10 +217,31 @@ namespace Window
 		{
 			if (rl::IsMouseButtonPressed(0))
 			{
+				//deactivate
+				UI::SpawnerDrop::WipeDrop();
 				::Utils::Log("left mouse button pressed");
 			}
 			else if (rl::IsMouseButtonPressed(1))
 			{
+				mouse = GetMousePosPro();
+
+				UI::SpawnerDrop::WipeDrop();
+
+				Button SpawnFunction = { false, &UI::SpawnerDrop::SpawnFunction,"SpawnFunction",false,{mouse.x,mouse.y},12 };
+				Button MakeModule = { false, &UI::SpawnerDrop::MakeModule,"MakeModule",false,{mouse.x,mouse.y},12 };
+				Button List = { false, &UI::SpawnerDrop::List,"List",false,{mouse.x,mouse.y},12 };
+				Button Delete = { false, &UI::SpawnerDrop::Delete,"Delete",false,{mouse.x,mouse.y},12 };
+
+				MakeModule.position.y = SpawnFunction.position.y + Qmessure(SpawnFunction).y;
+				List.position.y = MakeModule.position.y + Qmessure(MakeModule).y;
+				Delete.position.y = List.position.y + Qmessure(List).y;
+
+				data::activebuttons.push_back(SpawnFunction);
+				data::activebuttons.push_back(MakeModule);
+				data::activebuttons.push_back(List);
+				data::activebuttons.push_back(Delete);
+
+				//activate
 				::Utils::Log("right mouse button pressed");
 			}
 			return;
@@ -202,7 +278,7 @@ namespace Window
 
 	void DoCameraRender()
 	{
-		callbacks::DoInputCallbacksCamera(); //global area
+		callbacks::DoInputCallbacksCamera(); //global area aka 3d
 		return;
 	}
 }

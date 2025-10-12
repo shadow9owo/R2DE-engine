@@ -4,6 +4,7 @@
 #include <fstream>
 #include "../../types.hpp"
 #include "../../data.hpp"
+#include <memory>
 
 namespace projecthandling
 {
