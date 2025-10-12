@@ -77,19 +77,19 @@ namespace Window
 		mouse = GetMousePosPro();
 		data::activebuttons = {};
 
-		Button Quit = { false, &Utils::Quit,"Quit",false,{0,670} };
+		Button Quit = { false, &Utils::Quit,"Quit",false,{0,670},24,rl::GetFontDefault(),{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
 
-		Button Save = { false, &Utils::Save,"Save",false,{0,670} };
+		Button Save = { false, &Utils::Save,"Save",false,{0,670},24,rl::GetFontDefault(),{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
 
-		Button Load = { false, &Utils::Load,"Load",false,{0,670} };
+		Button Load = { false, &Utils::Load,"Load",false,{0,670},24,rl::GetFontDefault(),{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
 
-		Button Build = { false, &Utils::Build,"Build",false,{0,670} };
+		Button Build = { false, &Utils::Build,"Build",false,{0,670},24,rl::GetFontDefault(),{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
 		
 		Quit.position.x = offset;
 		Save.position.x = Quit.position.x + Qmessure(Quit).x + offset;
 		Load.position.x = Save.position.x + Qmessure(Save).x + offset;
 		Build.position.x = Load.position.x + Qmessure(Load).x + offset;
-		
+
 		data::activebuttons.push_back(Load);
 		data::activebuttons.push_back(Save);
 		data::activebuttons.push_back(Quit);
@@ -155,6 +155,15 @@ namespace Window
 
 	namespace callbacks
 	{
+		void DoInput()
+		{
+			if (rl::IsKeyPressed(rl::KEY_F11))
+			{
+				rl::ToggleFullscreen();
+			}
+			return;
+		}
+
 		void DoButtonCallBacks()
 		{
 			for (int i = (int)data::activebuttons.size() - 1; i >= 0; --i)
@@ -197,18 +206,55 @@ namespace Window
 
 			for (int i = (int)data::activebuttons.size() - 1; i >= 0; --i)
 			{
-				rl::Vector2 text = MeasureTextEx(data::activebuttons[i].font, data::activebuttons[i].text.c_str(), data::activebuttons[i].fontsize, 0.2f);
-				rl::Rectangle getsize = GetButtonSize(data::activebuttons[i]);
-				if (data::activebuttons[i].hovering)
+				Button& btn = data::activebuttons[i];
+
+				rl::Rectangle getsize = GetButtonSize(btn);
+
+				getsize.width = clamp(getsize.width, (int)btn.MinMax.x, (int)btn.MinMax.width);
+				getsize.height = clamp(getsize.height, (int)btn.MinMax.y, (int)btn.MinMax.height);
+
+				rl::Vector2 text = MeasureTextEx(btn.font, btn.text.c_str(), btn.fontsize, 0.2f);
+
+				rl::Color bgColor = btn.hovering ? btn.Onhover : btn.Def;
+				rl::DrawRectanglePro({ btn.position.x, btn.position.y, getsize.width, getsize.height }, { 0,0 }, 0, bgColor);
+
+				rl::Vector2 textPos = btn.position;
+
+				switch (btn.pivot)
 				{
-					rl::DrawRectanglePro({ data::activebuttons[i].position.x,data::activebuttons[i].position.y,getsize.width,getsize.height}, { 0,0 }, 0, rl::BLACK);
-					DrawTextPro(data::activebuttons[i].font, data::activebuttons[i].text.c_str(), { (data::activebuttons[i].position.x + getsize.width / 2) - text.x / 2, (data::activebuttons[i].position.y + getsize.height / 2) - text.y / 2 }, {0,0}, 0, data::activebuttons[i].fontsize, 0.2f, rl::WHITE);
+					case PIVOT::TopLeft:        
+						break;
+					case PIVOT::TopMiddle:      
+						textPos.x += (getsize.width - text.x) / 2; 
+						break;
+					case PIVOT::TopRight:       
+						textPos.x += getsize.width - text.x; 
+						break;
+					case PIVOT::MiddleLeft:     
+						textPos.y += (getsize.height - text.y) / 2; 
+						break;
+					case PIVOT::Middle:         
+						textPos.x += (getsize.width - text.x) / 2; 
+						textPos.y += (getsize.height - text.y) / 2; 
+						break;
+					case PIVOT::MiddleRight:    
+						textPos.x += getsize.width - text.x; 
+						textPos.y += (getsize.height - text.y) / 2; 
+						break;
+					case PIVOT::BottomLeft:     
+						textPos.y += getsize.height - text.y;
+						break;
+					case PIVOT::BottomMiddle:   
+						textPos.x += (getsize.width - text.x) / 2; 
+						textPos.y += getsize.height - text.y; 
+						break;
+					case PIVOT::BottomRight:    
+						textPos.x += getsize.width - text.x; 
+						textPos.y += getsize.height - text.y; 
+						break;
 				}
-				else 
-				{
-					rl::DrawRectanglePro({ data::activebuttons[i].position.x,data::activebuttons[i].position.y,getsize.width,getsize.height }, { 0,0 }, 0, rl::DARKGRAY);
-					DrawTextPro(data::activebuttons[i].font, data::activebuttons[i].text.c_str(), { (data::activebuttons[i].position.x + getsize.width / 2) - text.x /2, (data::activebuttons[i].position.y + getsize.height / 2) - text.y / 2 }, {0,0}, 0, data::activebuttons[i].fontsize, 0.2f, rl::WHITE);
-				}
+
+				DrawTextPro(btn.font, btn.text.c_str(), textPos, { 0,0 }, 0, btn.fontsize, 0.2f, rl::WHITE);
 			}
 			return;
 		}
@@ -227,11 +273,11 @@ namespace Window
 
 				UI::SpawnerDrop::WipeDrop();
 
-				Button SpawnFunction = { false, &UI::SpawnerDrop::SpawnFunction,"SpawnFunction",false,{mouse.x,mouse.y},12 };
-				Button MakeModule = { false, &UI::SpawnerDrop::MakeModule,"MakeModule",false,{mouse.x,mouse.y},12 };
-				Button List = { false, &UI::SpawnerDrop::List,"List",false,{mouse.x,mouse.y},12 };
-				Button Delete = { false, &UI::SpawnerDrop::Delete,"Delete",false,{mouse.x,mouse.y},12 };
-
+				Button SpawnFunction = { false, &UI::SpawnerDrop::SpawnFunction,"SpawnFunction",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
+				Button MakeModule = { false, &UI::SpawnerDrop::MakeModule,"MakeModule",false,{mouse.x,mouse.y},12, rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
+				Button List = { false, &UI::SpawnerDrop::List,"List",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
+				Button Delete = { false, &UI::SpawnerDrop::Delete,"Delete",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
+				
 				MakeModule.position.y = SpawnFunction.position.y + Qmessure(SpawnFunction).y;
 				List.position.y = MakeModule.position.y + Qmessure(MakeModule).y;
 				Delete.position.y = List.position.y + Qmessure(List).y;
@@ -267,6 +313,7 @@ namespace Window
 
 		callbacks::DoButtonCallBacks();
 		callbacks::DoInputCallbacksOnScreen(); //local area
+		callbacks::DoInput();
 
 		if (::debug)
 		{

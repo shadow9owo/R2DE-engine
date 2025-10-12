@@ -10,6 +10,12 @@ namespace rl
 #include <vector>
 #include <memory>
 
+enum class PIVOT {
+    TopLeft,TopMiddle,TopRight,
+    MiddleLeft,Middle,MiddleRight,
+    BottomLeft,BottomMiddle,BottomRight
+};
+
 struct Button
 {
 	bool hovering = false;
@@ -19,6 +25,10 @@ struct Button
     rl::Vector2 position = { 0,0 }; //its like if this value got added up every time a new definition is made
     int fontsize = 24;
     rl::Font font = rl::GetFontDefault();
+    rl::Rectangle MinMax = { INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX }; //disables it uncap format:: minx , miny, maxx, maxy
+    PIVOT pivot = PIVOT::Middle;
+    rl::Color Def = { rl::WHITE };
+    rl::Color Onhover = { rl::DARKGRAY };
 };
 
 enum class ValueType {
@@ -63,7 +73,7 @@ enum opcodes
     r_ret,
     r_cmp,
     r_nop,
-    r_div, // of value 11 redefined
+    r_div, // cant define it as "div" so every op has r_ before it now so the compiler doesnt bitch
     r_mul,
     r_dec,
     r_inc

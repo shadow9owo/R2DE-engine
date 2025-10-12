@@ -15,10 +15,20 @@ namespace rl
 #include "main.hpp"
 #include "utils.hpp"
 
+const rl::Vector2 BaseTexture = { 1280,720 };
+
 int offset = 16; //idk depends ig
 bool debug = true;
 
 bool shouldclose = false;
+
+
+float clamp(float value, float min, float max)
+{
+	if (value < min) return min;
+	if (value > max) return max;
+	return value;
+}
 
 bool HasProjects()
 {

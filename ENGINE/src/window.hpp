@@ -24,6 +24,7 @@ namespace Window
 
 	namespace callbacks
 	{
+		extern void DoInput();
 		extern void DoButtonCallBacks();
 		extern void DoInputCallbacksOnScreen();
 		extern void DoInputCallbacksCamera();

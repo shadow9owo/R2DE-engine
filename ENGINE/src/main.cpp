@@ -20,17 +20,17 @@ int main()
 {
     rl::SetConfigFlags(rl::FLAG_VSYNC_HINT | rl::FLAG_WINDOW_HIGHDPI | rl::FLAG_WINDOW_RESIZABLE);
 
-    rl::InitWindow(1280, 720, "GAME");
+    rl::InitWindow(BaseTexture.x, BaseTexture.y, "GAME");
 
-    if (rl::GetScreenWidth() < 1280 || rl::GetScreenHeight() < 720)
+    if (rl::GetScreenWidth() < BaseTexture.x || rl::GetScreenHeight() < BaseTexture.y)
     {
         Utils::LogFatal("Initialization error", "screen sizes below 720p are not supported");
         return -1; //crash the ui is not made for such small resolutions
     }
 
-    rl::SetWindowMinSize(1280, 720);
+    rl::SetWindowMinSize(BaseTexture.x, BaseTexture.y);
 
-	text = rl::LoadRenderTexture(1280, 720);
+	text = rl::LoadRenderTexture(BaseTexture.x, BaseTexture.y);
 
     rl::SetTextureFilter(text.texture, rl::TEXTURE_FILTER_POINT);
 
@@ -48,7 +48,8 @@ int main()
         {
             rl::Vector2 size = { (float)rl::GetScreenWidth(), (float)rl::GetScreenHeight() };
             rl::UnloadRenderTexture(text); // i hate this
-            rl::LoadRenderTexture(size.x, size.y);
+            text = rl::LoadRenderTexture(size.x, size.y);
+            Window::DoRender();
         }
 
         rl::BeginDrawing();
@@ -65,7 +66,7 @@ int main()
         rl::DrawTexturePro(
             text.texture,
             rl::Rectangle{ 0,0,(float)text.texture.width,-(float)text.texture.height },
-            rl::Rectangle{ 0,0,text.texture.width * (float)rl::GetScreenWidth() / (float)text.texture.width, text.texture.height * (float)rl::GetScreenHeight() / (float)text.texture.height },
+            rl::Rectangle{ 0,0,(float)rl::GetScreenWidth(), (float)rl::GetScreenHeight() },
             rl::Vector2{ 0,0 },
             0.0f,
             rl::WHITE
