@@ -1,6 +1,9 @@
 # R2DE-engine
 
 An experimental 2d game engine
+part of the Unbound SDK 
+
+Documentation : [https://docs.google.com/document/d/1QVyWPFARzOHe2o1CoE3DpLna9qLU6_L1vGQBKmoO-xM/edit?usp=sharing](https://docs.google.com/document/d/1QVyWPFARzOHe2o1CoE3DpLna9qLU6_L1vGQBKmoO-xM/edit?usp=sharing)
 
 ## Authors
 
