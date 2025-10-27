@@ -22,5 +22,5 @@ Documentation : [https://docs.google.com/document/d/1QVyW...](https://docs.googl
 
 ## License
 
-[MIT](https://choosealicense.com/licenses/mit/)
+[UNLICENSE](https://unlicense.org/)
 
