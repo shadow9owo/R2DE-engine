@@ -42,7 +42,12 @@ bool HasProjects()
 	return true;
 }
 
-rl::Rectangle GetButtonSize(Button& button)
+rl::Font GetFontPointerToFont(void* fontfunc)
+{
+	return *static_cast<rl::Font*>(fontfunc);
+}
+
+rl::Rectangle GetButtonSize(Types::Button& button)
 {
 	rl::Vector2 sizeinfo = rl::MeasureTextEx(button.font, button.text.c_str(), button.fontsize, 0.2f);
 	rl::Rectangle rect = { button.position.x, button.position.y, sizeinfo.x * 2, sizeinfo.y * 2 };
@@ -55,7 +60,7 @@ rl::Rectangle GetButtonSize(Button& button)
 	return rect;
 }
 
-rl::Vector2 Qmessure(Button& button)
+rl::Vector2 Qmessure(Types::Button& button)
 {
 	rl::Rectangle rect = GetButtonSize(button);
 	return { rect.width, rect.height };

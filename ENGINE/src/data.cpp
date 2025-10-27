@@ -8,8 +8,11 @@
 
 namespace data
 {
-	std::vector<Button> activebuttons;
-	Project project = {};
+	Types::Project project = {};
 	std::string filepath = "";
-	std::vector<std::string> contentsofproject;
+	std::vector<std::string> contentsofproject = {};
+
+	// headers
+	Types::Window rootwindow = {};
+	std::vector<Types::Window> windows;
 }

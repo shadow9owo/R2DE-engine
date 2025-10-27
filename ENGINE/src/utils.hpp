@@ -13,9 +13,11 @@ extern const rl::Vector2 BaseTexture;
 
 extern bool shouldclose;
 
+extern rl::Font GetFontPointerToFont(void* fontfunc);
+
 extern bool HasProjects();
-extern rl::Rectangle GetButtonSize(Button& button);
-extern rl::Vector2 Qmessure(Button& button); //quick messure
+extern rl::Rectangle GetButtonSize(Types::Button& button);
+extern rl::Vector2 Qmessure(Types::Button& button); //quick messure
 
 extern float clamp(float value, float min, float max);
 

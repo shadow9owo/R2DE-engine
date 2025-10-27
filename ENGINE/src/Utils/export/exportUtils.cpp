@@ -9,7 +9,7 @@ namespace projecthandling
 {
     namespace json
     {
-        bool exporttofile(const Project& project, std::string path)
+        bool exporttofile(const Types::Project& project, std::string path)
         {
             try
             {
@@ -36,9 +36,9 @@ namespace projecthandling
             }
         }
 
-        Project importprojectfromfile(std::string path)
+        Types::Project importprojectfromfile(std::string path)
         {
-            Project project;
+            Types::Project project;
 
             try
             {
@@ -53,7 +53,7 @@ namespace projecthandling
 
                 for (auto& jobj : j["objects"])
                 {
-                    auto obj = std::make_unique<Object>();
+                    auto obj = std::make_unique<Types::Object>();
                     if (jobj.contains("position"))
                     {
                         obj->position.x = jobj["position"].value("x", 0.0f);

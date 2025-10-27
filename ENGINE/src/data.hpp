@@ -6,8 +6,10 @@
 
 namespace data
 {
-	extern std::vector<Button> activebuttons;
-	extern Project project;
+	extern Types::Project project;
 	extern std::string filepath;
 	extern std::vector<std::string> contentsofproject;
+
+	extern Types::Window rootwindow;
+	extern std::vector<Types::Window> windows;
 }

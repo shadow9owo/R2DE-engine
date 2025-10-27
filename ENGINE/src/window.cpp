@@ -17,6 +17,8 @@ namespace rl
 #include "Utils/export/exportUtils.hpp"
 #include "window.hpp"
 
+#include <vector>
+
 #include <iostream>
 
 namespace Window
@@ -75,27 +77,28 @@ namespace Window
 	void DoInit()
 	{
 		mouse = GetMousePosPro();
-		data::activebuttons = {};
 
-		Button Quit = { false, &Utils::Quit,"Quit",false,{0,670},24,rl::GetFontDefault(),{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
+		Types::Button Quit = { false, &Utils::Quit,"Quit",false,{0,670},24,rl::GetFontDefault(),{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
 
-		Button Save = { false, &Utils::Save,"Save",false,{0,670},24,rl::GetFontDefault(),{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
+		Types::Button Save = { false, &Utils::Save,"Save",false,{0,670},24,rl::GetFontDefault(),{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
 
-		Button Load = { false, &Utils::Load,"Load",false,{0,670},24,rl::GetFontDefault(),{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
+		Types::Button Load = { false, &Utils::Load,"Load",false,{0,670},24,rl::GetFontDefault(),{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
 
-		Button Build = { false, &Utils::Build,"Build",false,{0,670},24,rl::GetFontDefault(),{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
+		Types::Button Build = { false, &Utils::Build,"Build",false,{0,670},24,rl::GetFontDefault(),{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK};
 		
 		Quit.position.x = offset;
 		Save.position.x = Quit.position.x + Qmessure(Quit).x + offset;
 		Load.position.x = Save.position.x + Qmessure(Save).x + offset;
 		Build.position.x = Load.position.x + Qmessure(Load).x + offset;
 
-		data::activebuttons.push_back(Load);
-		data::activebuttons.push_back(Save);
-		data::activebuttons.push_back(Quit);
-		data::activebuttons.push_back(Build);
+		data::rootwindow.priority = -1;
 
-		//active ui
+		data::rootwindow.objects.push_back(Load);
+		data::rootwindow.objects.push_back(Save);
+		data::rootwindow.objects.push_back(Quit);
+		data::rootwindow.objects.push_back(Build);
+
+		data::windows.push_back(data::rootwindow);
 
 		return;
 	}
@@ -140,11 +143,42 @@ namespace Window
 				void* List = (*UI::SpawnerDrop::List);
 				void* Delete = (*UI::SpawnerDrop::Delete);
 
-				for (int i = (int)data::activebuttons.size() - 1; i >= 0; --i)
+				std::vector<Types::Window> Windows;
+
+				for (Types::Window i : data::windows)
 				{
-					if (data::activebuttons[i].exec == SpawnFunction || data::activebuttons[i].exec == MakeModule || data::activebuttons[i].exec == List || data::activebuttons[i].exec == Delete)
+					Windows.push_back(i);
+				}
+
+				std::sort(Windows.begin(), Windows.end(),
+					[](const Types::Window& a, const Types::Window& b)
 					{
-						data::activebuttons.erase(data::activebuttons.begin() + i);
+						return a.priority < b.priority;
+					});
+
+				for (Types::Window& i : data::windows)
+				{
+					auto& objs = i.objects;
+
+					for (auto it = objs.begin(); it != objs.end(); )
+					{
+						auto& j = *it;
+
+						if (j.type == Types::_Button)
+						{
+							void* exec = j.btn.exec;
+
+							if (exec == SpawnFunction ||
+								exec == MakeModule ||
+								exec == List ||
+								exec == Delete)
+							{
+								it = objs.erase(it);
+								continue;
+							}
+						}
+
+						++it;
 					}
 				}
 
@@ -153,156 +187,207 @@ namespace Window
 		}
 	}
 
-	namespace callbacks
-	{
-		void DoInput()
+		namespace callbacks
 		{
-			if (rl::IsKeyPressed(rl::KEY_F11))
+			void RenderAllWindowObjects()
 			{
-				rl::ToggleFullscreen();
-			}
-			return;
-		}
+				std::vector<Types::Window> Windows;
 
-		void DoButtonCallBacks()
-		{
-			for (int i = (int)data::activebuttons.size() - 1; i >= 0; --i)
-			{
-				if (data::activebuttons[i].disabled)
+				for (Types::Window i : data::windows)
 				{
-					data::activebuttons.erase(data::activebuttons.begin() + i);
+					Windows.push_back(i);
 				}
-			}
 
-			for (int i = (int)data::activebuttons.size() - 1; i >= 0; --i)
-			{
-				if (CheckCollisionRecs(GetButtonSize(data::activebuttons[i]),{mouse.x,mouse.y,1,1}))
-				{
-					data::activebuttons[i].hovering = true;
-				}
-				else
-				{
-					data::activebuttons[i].hovering = false;
-				}
-			}
-
-			for (int i = (int)data::activebuttons.size() - 1; i >= 0; --i)
-			{
-				if (data::activebuttons[i].hovering)
-				{
-					if (rl::IsMouseButtonPressed(0))
+				std::sort(Windows.begin(), Windows.end(),
+					[](const Types::Window& a, const Types::Window& b)
 					{
-						if (data::activebuttons[i].exec)
+						return a.priority < b.priority;
+					});
+
+				for (Types::Window i : data::windows)
+				{
+					for (Types::UIObject j : i.objects)
+					{
+						if (j.type == Types::_Button)
 						{
-							((void(*)())data::activebuttons[i].exec)(); //calls pointer
-						}
-						else
-						{
-							::Utils::LogFatal("Error", "unitialized pointer or memory corruption accured");
+							Types::Button& btn = j.btn;
+
+							rl::Rectangle getsize = GetButtonSize(btn);
+
+							getsize.width = clamp(getsize.width, (int)btn.MinMax.x, (int)btn.MinMax.width);
+							getsize.height = clamp(getsize.height, (int)btn.MinMax.y, (int)btn.MinMax.height);
+
+							rl::Vector2 text = MeasureTextEx(btn.font, btn.text.c_str(), btn.fontsize, 0.2f);
+
+							rl::Color bgColor = btn.hovering ? btn.Onhover : btn.Def;
+							rl::DrawRectanglePro({ btn.position.x, btn.position.y, getsize.width, getsize.height }, { 0,0 }, 0, bgColor);
+
+							rl::Vector2 textPos = btn.position;
+
+							switch (btn.pivot)
+							{
+							case Types::PIVOT::TopLeft:
+								break;
+							case Types::PIVOT::TopMiddle:
+								textPos.x += (getsize.width - text.x) / 2;
+								break;
+							case Types::PIVOT::TopRight:
+								textPos.x += getsize.width - text.x;
+								break;
+							case Types::PIVOT::MiddleLeft:
+								textPos.y += (getsize.height - text.y) / 2;
+								break;
+							case Types::PIVOT::Middle:
+								textPos.x += (getsize.width - text.x) / 2;
+								textPos.y += (getsize.height - text.y) / 2;
+								break;
+							case Types::PIVOT::MiddleRight:
+								textPos.x += getsize.width - text.x;
+								textPos.y += (getsize.height - text.y) / 2;
+								break;
+							case Types::PIVOT::BottomLeft:
+								textPos.y += getsize.height - text.y;
+								break;
+							case Types::PIVOT::BottomMiddle:
+								textPos.x += (getsize.width - text.x) / 2;
+								textPos.y += getsize.height - text.y;
+								break;
+							case Types::PIVOT::BottomRight:
+								textPos.x += getsize.width - text.x;
+								textPos.y += getsize.height - text.y;
+								break;
+							}
+
+							DrawTextPro(btn.font, btn.text.c_str(), textPos, { 0,0 }, 0, btn.fontsize, 0.2f, rl::WHITE);
+
 						}
 					}
 				}
+
+				return;
 			}
 
-			for (int i = (int)data::activebuttons.size() - 1; i >= 0; --i)
+			void DoInput()
 			{
-				Button& btn = data::activebuttons[i];
-
-				rl::Rectangle getsize = GetButtonSize(btn);
-
-				getsize.width = clamp(getsize.width, (int)btn.MinMax.x, (int)btn.MinMax.width);
-				getsize.height = clamp(getsize.height, (int)btn.MinMax.y, (int)btn.MinMax.height);
-
-				rl::Vector2 text = MeasureTextEx(btn.font, btn.text.c_str(), btn.fontsize, 0.2f);
-
-				rl::Color bgColor = btn.hovering ? btn.Onhover : btn.Def;
-				rl::DrawRectanglePro({ btn.position.x, btn.position.y, getsize.width, getsize.height }, { 0,0 }, 0, bgColor);
-
-				rl::Vector2 textPos = btn.position;
-
-				switch (btn.pivot)
+				if (rl::IsKeyPressed(rl::KEY_F11))
 				{
-					case PIVOT::TopLeft:        
-						break;
-					case PIVOT::TopMiddle:      
-						textPos.x += (getsize.width - text.x) / 2; 
-						break;
-					case PIVOT::TopRight:       
-						textPos.x += getsize.width - text.x; 
-						break;
-					case PIVOT::MiddleLeft:     
-						textPos.y += (getsize.height - text.y) / 2; 
-						break;
-					case PIVOT::Middle:         
-						textPos.x += (getsize.width - text.x) / 2; 
-						textPos.y += (getsize.height - text.y) / 2; 
-						break;
-					case PIVOT::MiddleRight:    
-						textPos.x += getsize.width - text.x; 
-						textPos.y += (getsize.height - text.y) / 2; 
-						break;
-					case PIVOT::BottomLeft:     
-						textPos.y += getsize.height - text.y;
-						break;
-					case PIVOT::BottomMiddle:   
-						textPos.x += (getsize.width - text.x) / 2; 
-						textPos.y += getsize.height - text.y; 
-						break;
-					case PIVOT::BottomRight:    
-						textPos.x += getsize.width - text.x; 
-						textPos.y += getsize.height - text.y; 
-						break;
+					rl::ToggleFullscreen();
+				}
+				return;
+			}
+
+			void DoButtonCallBacks()
+			{
+				std::vector<Types::Window> Windows;
+
+				for (Types::Window i : data::windows)
+				{
+					Windows.push_back(i);
 				}
 
-				DrawTextPro(btn.font, btn.text.c_str(), textPos, { 0,0 }, 0, btn.fontsize, 0.2f, rl::WHITE);
-			}
-			return;
-		}
+				std::sort(Windows.begin(), Windows.end(),
+					[](const Types::Window& a, const Types::Window& b)
+					{
+						return a.priority < b.priority;
+					});
 
-		void DoInputCallbacksOnScreen()
-		{
-			if (rl::IsMouseButtonPressed(0))
+				for (Types::Window& i : data::windows)
+				{
+					auto& objs = i.objects;
+
+					for (auto it = objs.begin(); it != objs.end(); )
+					{
+						auto& j = *it;
+
+						if (j.type == Types::_Button)
+						{
+							if (j.btn.disabled)
+							{
+								it = objs.erase(it);
+								continue;
+							}
+						}
+
+						if (CheckCollisionRecs(GetButtonSize(j.btn), { mouse.x, mouse.y, 1, 1 }))
+						{
+							j.btn.hovering = true;
+						}
+						else
+						{
+							j.btn.hovering = false;
+						}
+
+						if (j.btn.hovering)
+						{
+							if (rl::IsMouseButtonPressed(0))
+							{
+								if (j.btn.exec)
+								{
+									((void(*)())j.btn.exec)();
+								}
+								else
+								{
+									::Utils::LogFatal("Error", "uninitialized pointer or memory corruption occurred");
+								}
+							}
+						}
+
+						++it;
+					}
+				}
+				return;
+			}
+
+			void DoInputCallbacksOnScreen()
 			{
-				//deactivate
-				UI::SpawnerDrop::WipeDrop();
-				::Utils::Log("left mouse button pressed");
+				if (rl::IsMouseButtonPressed(0))
+				{
+					//deactivate
+					UI::SpawnerDrop::WipeDrop();
+					::Utils::Log("left mouse button pressed");
+				}
+				else if (rl::IsMouseButtonPressed(1))
+				{
+					mouse = GetMousePosPro();
+
+					UI::SpawnerDrop::WipeDrop();
+
+					Types::Window options = {};
+					options.priority = 1;
+
+					Types::Button SpawnFunction = { false, &UI::SpawnerDrop::SpawnFunction,"SpawnFunction",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
+					Types::Button MakeModule = { false, &UI::SpawnerDrop::MakeModule,"MakeModule",false,{mouse.x,mouse.y},12, rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
+					Types::Button List = { false, &UI::SpawnerDrop::List,"List",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
+					Types::Button Delete = { false, &UI::SpawnerDrop::Delete,"Delete",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
+					
+					MakeModule.position.y = SpawnFunction.position.y + Qmessure(SpawnFunction).y;
+					List.position.y = MakeModule.position.y + Qmessure(MakeModule).y;
+					Delete.position.y = List.position.y + Qmessure(List).y;
+
+					options.objects.push_back(SpawnFunction);
+					options.objects.push_back(MakeModule);
+					options.objects.push_back(List);
+					options.objects.push_back(Delete);
+
+					data::windows.push_back(options);
+
+					//activate
+					::Utils::Log("right mouse button pressed");
+				}
+				return;
 			}
-			else if (rl::IsMouseButtonPressed(1))
+
+			void DoInputCallbacksCamera()
 			{
-				mouse = GetMousePosPro();
-
-				UI::SpawnerDrop::WipeDrop();
-
-				Button SpawnFunction = { false, &UI::SpawnerDrop::SpawnFunction,"SpawnFunction",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
-				Button MakeModule = { false, &UI::SpawnerDrop::MakeModule,"MakeModule",false,{mouse.x,mouse.y},12, rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
-				Button List = { false, &UI::SpawnerDrop::List,"List",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
-				Button Delete = { false, &UI::SpawnerDrop::Delete,"Delete",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
-				
-				MakeModule.position.y = SpawnFunction.position.y + Qmessure(SpawnFunction).y;
-				List.position.y = MakeModule.position.y + Qmessure(MakeModule).y;
-				Delete.position.y = List.position.y + Qmessure(List).y;
-
-				data::activebuttons.push_back(SpawnFunction);
-				data::activebuttons.push_back(MakeModule);
-				data::activebuttons.push_back(List);
-				data::activebuttons.push_back(Delete);
-
-				//activate
-				::Utils::Log("right mouse button pressed");
+				return;
 			}
-			return;
-		}
-
-		void DoInputCallbacksCamera()
-		{
-			return;
-		}
+		
 	}
 
 	void debug()
 	{
-		rl::DrawTextPro(rl::GetFontDefault(), std::to_string(mouse.x).c_str(), { 0, 0 },{ 0, 0 },0, 24, 0.2f, rl::BLACK);
-		rl::DrawTextPro(rl::GetFontDefault(), std::to_string(mouse.y).c_str(), { 0, 24 },{0,0}, 0,24,0.2f, rl::BLACK);
+		rl::DrawTextPro(rl::GetFontDefault(), std::to_string(mouse.x).c_str(), { 0, 0 }, { 0, 0 }, 0, 24, 0.2f, rl::BLACK);
+		rl::DrawTextPro(rl::GetFontDefault(), std::to_string(mouse.y).c_str(), { 0, 24 }, { 0,0 }, 0, 24, 0.2f, rl::BLACK);
 
 		return;
 	}
@@ -314,6 +399,7 @@ namespace Window
 		callbacks::DoButtonCallBacks();
 		callbacks::DoInputCallbacksOnScreen(); //local area
 		callbacks::DoInput();
+		callbacks::RenderAllWindowObjects();
 
 		if (::debug)
 		{
