@@ -4,7 +4,10 @@
 #include "../types.hpp"
 #include "parser.hpp"
 
+namespace rl
+{
 #include <raylib.h>
+}
 #include <limits>
 
 #include <fstream>
@@ -21,7 +24,7 @@ namespace parser
 		};
 
 		std::vector<std::pair<Value, Value>> dynamicpairs = {
-			{"DELTA", GetFrameTime()},
+			{"DELTA", rl::GetFrameTime()},
 			{"FPSLIMIT", 60}
 		};
 
