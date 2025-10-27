@@ -83,7 +83,8 @@ namespace Types
         r_mul,
         r_dec,
         r_inc,
-        r_add
+        r_add,
+        r_sub
     };
 
     struct Node

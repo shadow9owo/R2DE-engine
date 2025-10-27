@@ -22,7 +22,7 @@ int main()
 
     rl::InitWindow(BaseTexture.x, BaseTexture.y, "GAME");
 
-    if (rl::GetScreenWidth() < BaseTexture.x || rl::GetScreenHeight() < BaseTexture.y)
+    if (rl::GetMonitorWidth(rl::GetCurrentMonitor()) < BaseTexture.x || rl::GetMonitorHeight(rl::GetCurrentMonitor()) < BaseTexture.y)
     {
         Utils::LogFatal("Initialization error", "screen sizes below 720p are not supported");
         return -1; //crash the ui is not made for such small resolutions
