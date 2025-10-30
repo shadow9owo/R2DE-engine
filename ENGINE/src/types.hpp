@@ -117,7 +117,7 @@ namespace Types
         UIObject& operator=(UIObject&&) noexcept = default;
     };
 
-    struct Window
+    struct Layer
     {
         std::vector<UIObject> objects;
         int priority;

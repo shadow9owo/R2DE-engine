@@ -10,6 +10,6 @@ namespace data
 	extern std::string filepath;
 	extern std::vector<std::string> contentsofproject;
 
-	extern Types::Window rootwindow;
-	extern std::vector<Types::Window> windows;
+	extern Types::Layer rootlayer;
+	extern std::vector<Types::Layer> Layers;
 }

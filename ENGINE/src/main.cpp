@@ -34,6 +34,8 @@ int main()
 
     rl::SetTextureFilter(text.texture, rl::TEXTURE_FILTER_POINT);
 
+    rl::SetTargetFPS(24);
+
 	Window::DoInit();
 
 	camera = { 0 };

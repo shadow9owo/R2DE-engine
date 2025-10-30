@@ -91,14 +91,14 @@ namespace Window
 		Load.position.x = Save.position.x + Qmessure(Save).x + offset;
 		Build.position.x = Load.position.x + Qmessure(Load).x + offset;
 
-		data::rootwindow.priority = -1;
+		data::rootlayer.priority = -1;
 
-		data::rootwindow.objects.push_back(Load);
-		data::rootwindow.objects.push_back(Save);
-		data::rootwindow.objects.push_back(Quit);
-		data::rootwindow.objects.push_back(Build);
+		data::rootlayer.objects.push_back(Load);
+		data::rootlayer.objects.push_back(Save);
+		data::rootlayer.objects.push_back(Quit);
+		data::rootlayer.objects.push_back(Build);
 
-		data::windows.push_back(data::rootwindow);
+		data::Layers.push_back(data::rootlayer);
 
 		return;
 	}
@@ -143,20 +143,20 @@ namespace Window
 				void* List = (*UI::SpawnerDrop::List);
 				void* Delete = (*UI::SpawnerDrop::Delete);
 
-				std::vector<Types::Window> Windows;
+				std::vector<Types::Layer> Windows;
 
-				for (Types::Window i : data::windows)
+				for (Types::Layer i : data::Layers)
 				{
 					Windows.push_back(i);
 				}
 
 				std::sort(Windows.begin(), Windows.end(),
-					[](const Types::Window& a, const Types::Window& b)
+					[](const Types::Layer& a, const Types::Layer& b)
 					{
 						return a.priority < b.priority;
 					});
 
-				for (Types::Window& i : data::windows)
+				for (Types::Layer& i : data::Layers)
 				{
 					auto& objs = i.objects;
 
@@ -191,20 +191,20 @@ namespace Window
 		{
 			void RenderAllWindowObjects()
 			{
-				std::vector<Types::Window> Windows;
+				std::vector<Types::Layer> Windows;
 
-				for (Types::Window i : data::windows)
+				for (Types::Layer i : data::Layers)
 				{
 					Windows.push_back(i);
 				}
 
 				std::sort(Windows.begin(), Windows.end(),
-					[](const Types::Window& a, const Types::Window& b)
+					[](const Types::Layer& a, const Types::Layer& b)
 					{
 						return a.priority < b.priority;
 					});
 
-				for (Types::Window i : data::windows)
+				for (Types::Layer i : data::Layers)
 				{
 					for (Types::UIObject j : i.objects)
 					{
@@ -278,20 +278,20 @@ namespace Window
 
 			void DoButtonCallBacks()
 			{
-				std::vector<Types::Window> Windows;
+				std::vector<Types::Layer> Windows;
 
-				for (Types::Window i : data::windows)
+				for (Types::Layer i : data::Layers)
 				{
 					Windows.push_back(i);
 				}
 
 				std::sort(Windows.begin(), Windows.end(),
-					[](const Types::Window& a, const Types::Window& b)
+					[](const Types::Layer& a, const Types::Layer& b)
 					{
 						return a.priority < b.priority;
 					});
 
-				for (Types::Window& i : data::windows)
+				for (Types::Layer& i : data::Layers)
 				{
 					auto& objs = i.objects;
 
@@ -352,7 +352,7 @@ namespace Window
 
 					UI::SpawnerDrop::WipeDrop();
 
-					Types::Window options = {};
+					Types::Layer options = {};
 					options.priority = 1;
 
 					Types::Button SpawnFunction = { false, &UI::SpawnerDrop::SpawnFunction,"SpawnFunction",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
@@ -369,7 +369,7 @@ namespace Window
 					options.objects.push_back(List);
 					options.objects.push_back(Delete);
 
-					data::windows.push_back(options);
+					data::Layers.push_back(options);
 
 					//activate
 					::Utils::Log("right mouse button pressed");

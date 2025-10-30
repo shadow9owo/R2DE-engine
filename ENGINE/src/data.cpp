@@ -13,6 +13,6 @@ namespace data
 	std::vector<std::string> contentsofproject = {};
 
 	// headers
-	Types::Window rootwindow = {};
-	std::vector<Types::Window> windows;
+	Types::Layer rootlayer;
+	std::vector<Types::Layer> Layers;
 }
