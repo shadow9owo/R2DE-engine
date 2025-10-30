@@ -42,11 +42,6 @@ bool HasProjects()
 	return true;
 }
 
-rl::Font GetFontPointerToFont(void* fontfunc)
-{
-	return *static_cast<rl::Font*>(fontfunc);
-}
-
 rl::Rectangle GetButtonSize(Types::Button& button)
 {
 	rl::Vector2 sizeinfo = rl::MeasureTextEx(button.font, button.text.c_str(), button.fontsize, 0.2f);

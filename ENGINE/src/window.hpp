@@ -9,6 +9,16 @@ namespace rl
 
 namespace Window
 {
+	namespace callbacks
+	{
+		extern void UpdateDebugValues(int arg, void* ptr);
+		extern void RenderAllLayers();
+		extern void DoInput();
+		extern void DoButtonCallBacks();
+		extern void DoInputCallbacksOnScreen();
+		extern void DoInputCallbacksCamera();
+	}
+
 	extern rl::Vector2 mouse;
 	extern void DoInit();
 
@@ -26,14 +36,5 @@ namespace Window
 			extern void List();
 			extern void Delete();
 		}
-	}
-
-	namespace callbacks
-	{
-		extern void RenderAllLayers();
-		extern void DoInput();
-		extern void DoButtonCallBacks();
-		extern void DoInputCallbacksOnScreen();
-		extern void DoInputCallbacksCamera();
 	}
 }

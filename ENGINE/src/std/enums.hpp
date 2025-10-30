@@ -2,6 +2,8 @@
 
 //https://emscripten.org/docs/porting/multimedia_and_graphics/OpenGL-support.html
 
+//if youre reading this dont remove this file its kinda important and its a leftover of an earlier version
+
 enum SDL_EVENTS
 {
     none = 0,

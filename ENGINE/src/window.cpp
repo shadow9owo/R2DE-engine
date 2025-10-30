@@ -78,6 +78,8 @@ namespace Window
 	{
 		mouse = GetMousePosPro();
 
+		data::Layers.reserve(128);
+
 		Types::Button Quit = { false, &Utils::Quit,"Quit",false,{0,670},24,rl::GetFontDefault(),{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
 
 		Types::Button Save = { false, &Utils::Save,"Save",false,{0,670},24,rl::GetFontDefault(),{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
@@ -99,6 +101,17 @@ namespace Window
 		data::rootlayer.objects.push_back(Build);
 
 		data::Layers.push_back(data::rootlayer);
+
+		Types::Layer debug = {};
+		debug.priority = 9999;
+
+		Types::Label PosInfo = { 24,std::to_string(mouse.x) + " || " + std::to_string(mouse.y),rl::GetFontDefault(),Types::PIVOT::TopLeft,{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX } ,{ 0,8 } ,callbacks::UpdateDebugValues,{ 0,0,0,255 } ,{ 0,0,0,255} ,1};
+		Types::Label FrameRate = { 24,std::to_string(rl::GetFPS()) + " || " + std::to_string(rl::GetFrameTime()),rl::GetFontDefault(),Types::PIVOT::TopLeft,{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX} ,{0,PosInfo.position.y + 24} ,callbacks::UpdateDebugValues,{0,0,0,255} ,{0,0,0,255},2};
+
+		debug.objects.push_back(PosInfo);
+		debug.objects.push_back(FrameRate);
+
+		data::Layers.push_back(debug);
 
 		return;
 	}
@@ -138,10 +151,10 @@ namespace Window
 			//utility
 			void WipeDrop()
 			{
-				void* SpawnFunction = (*UI::SpawnerDrop::SpawnFunction);
-				void* MakeModule = (*UI::SpawnerDrop::MakeModule);
-				void* List = (*UI::SpawnerDrop::List);
-				void* Delete = (*UI::SpawnerDrop::Delete);
+				void (*SpawnFunction)() = (*UI::SpawnerDrop::SpawnFunction);
+				void (*MakeModule)() = (*UI::SpawnerDrop::MakeModule);
+				void (*List)() = (*UI::SpawnerDrop::List);
+				void (*Delete)() = (*UI::SpawnerDrop::Delete);
 
 				std::vector<Types::Layer> Windows;
 
@@ -166,12 +179,10 @@ namespace Window
 
 						if (j.type == Types::_Button)
 						{
-							void* exec = j.btn.exec;
-
-							if (exec == SpawnFunction ||
-								exec == MakeModule ||
-								exec == List ||
-								exec == Delete)
+							if (j.btn.exec == SpawnFunction ||
+								j.btn.exec == MakeModule ||
+								j.btn.exec == List ||
+								j.btn.exec == Delete)
 							{
 								it = objs.erase(it);
 								continue;
@@ -189,11 +200,27 @@ namespace Window
 
 		namespace callbacks
 		{
+			void UpdateDebugValues(int arg,void* ptr)
+			{
+				switch (arg)
+				{
+				case 1:
+					static_cast<Types::Label*>(ptr)->text = std::to_string(mouse.x) + " || " + std::to_string(mouse.y);
+					break;
+				case 2:
+					static_cast<Types::Label*>(ptr)->text = std::to_string(rl::GetFPS()) + " || " + std::to_string(rl::GetFrameTime());
+					break;
+				default:
+					break;
+				}
+				return;
+			}
+
 			void RenderAllLayers()
 			{
 				std::vector<Types::Layer> Windows;
 
-				for (Types::Layer i : data::Layers)
+				for (auto& i : data::Layers)
 				{
 					Windows.push_back(i);
 				}
@@ -204,9 +231,9 @@ namespace Window
 						return a.priority < b.priority;
 					});
 
-				for (Types::Layer i : data::Layers)
+				for (auto& i : data::Layers) // reference, not copy
 				{
-					for (Types::UIObject j : i.objects)
+					for (auto& j : i.objects) // reference, not copy
 					{
 						if (j.type == Types::_Button)
 						{
@@ -258,9 +285,60 @@ namespace Window
 								break;
 							}
 
-							DrawTextPro(btn.font, btn.text.c_str(), textPos, { 0,0 }, 0, btn.fontsize, 0.2f, rl::WHITE);
-
+							rl::DrawTextPro(btn.font, btn.text.c_str(), textPos, { 0,0 }, 0, btn.fontsize, 0.2f, rl::WHITE);
 						}
+						else if (j.type == Types::_Label)
+						{
+							Types::Label& lbl = j.lbl;
+
+							rl::Vector2 textSize = MeasureTextEx(lbl.font, lbl.text.c_str(), lbl.fontsize, 0.2f);
+							rl::Vector2 pos = lbl.position;
+
+							switch (lbl.pivot)
+							{
+							case Types::PIVOT::TopLeft:
+								break;
+
+							case Types::PIVOT::TopMiddle:
+								pos.x -= textSize.x / 2;
+								break;
+
+							case Types::PIVOT::TopRight:
+								pos.x -= textSize.x;
+								break;
+
+							case Types::PIVOT::MiddleLeft:
+								pos.y -= textSize.y / 2;
+								break;
+
+							case Types::PIVOT::Middle:
+								pos.x -= textSize.x / 2;
+								pos.y -= textSize.y / 2;
+								break;
+
+							case Types::PIVOT::MiddleRight:
+								pos.x -= textSize.x;
+								pos.y -= textSize.y / 2;
+								break;
+
+							case Types::PIVOT::BottomLeft:
+								pos.y -= textSize.y;
+								break;
+
+							case Types::PIVOT::BottomMiddle:
+								pos.x -= textSize.x / 2;
+								pos.y -= textSize.y;
+								break;
+
+							case Types::PIVOT::BottomRight:
+								pos.x -= textSize.x;
+								pos.y -= textSize.y;
+								break;
+							}
+
+							rl::DrawTextPro(lbl.font, lbl.text.c_str(), pos, { 0,0 }, 0, lbl.fontsize, 0.2f, lbl.Def);
+						}
+
 					}
 				}
 
@@ -386,9 +464,20 @@ namespace Window
 
 	void debug()
 	{
-		rl::DrawTextPro(rl::GetFontDefault(), std::to_string(mouse.x).c_str(), { 0, 0 }, { 0, 0 }, 0, 24, 0.2f, rl::BLACK);
-		rl::DrawTextPro(rl::GetFontDefault(), std::to_string(mouse.y).c_str(), { 0, 24 }, { 0,0 }, 0, 24, 0.2f, rl::BLACK);
-
+		for (auto& layer : data::Layers)
+		{
+			if (layer.priority == 9999)
+			{
+				for (auto& obj : layer.objects)
+				{
+					if (obj.type == Types::_Label && obj.lbl.uniqueid == 1)
+						obj.lbl.callback(1,&obj.lbl);
+					else if (obj.type == Types::_Label && obj.lbl.uniqueid == 2)
+						obj.lbl.callback(2,&obj.lbl);
+				}
+				break;
+			}
+		}
 		return;
 	}
 

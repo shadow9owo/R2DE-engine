@@ -21,7 +21,7 @@ namespace Types
     struct Button
     {
         bool hovering = false;
-        void* exec = nullptr;
+        void (*exec)() = nullptr;
         std::string text = "nul";
         bool disabled = false;
         rl::Vector2 position = { 0,0 }; //its like if this value got added up every time a new definition is made
@@ -31,6 +31,66 @@ namespace Types
         PIVOT pivot = PIVOT::Middle;
         rl::Color Def = { rl::WHITE };
         rl::Color Onhover = { rl::DARKGRAY };
+        int uniqueid = -1;
+    };
+
+    struct Label
+    {
+        int fontsize = 8;
+        std::string text = "nul";
+        rl::Font font = rl::GetFontDefault();
+        PIVOT pivot = PIVOT::Middle;
+        rl::Rectangle MinMax = { INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX };
+        rl::Vector2 position = { 0,0 };
+        void (*callback)(int, void*) = nullptr;
+        rl::Color Def = { 0,0,0,0 };
+        rl::Color Onhover = { rl::DARKGRAY };
+        int uniqueid = -1;
+    };
+
+    enum UIObjectType
+    {
+        None,
+        _Button,
+        _Window,
+        _Label
+    };
+
+    struct Window; // forward decl to break the cycle
+
+    struct UIObject
+    {
+        UIObjectType type = None;
+        Button btn;
+        Label lbl;
+        Window* win = nullptr; // non-owning pointer; avoids incomplete-type issues
+
+        UIObject() = default;
+        ~UIObject() = default;
+
+        UIObject(const Button& b) : type(_Button), btn(b) {}
+        UIObject(Button&& b) noexcept : type(_Button), btn(std::move(b)) {}
+
+        UIObject(const Label& b) : type(_Label), lbl(b) {}
+        UIObject(Label&& b) noexcept : type(_Label), lbl(std::move(b)) {}
+
+        // window variants – store pointer (caller owns lifetime)
+        UIObject(Window* b) : type(_Window), win(b) {}
+        UIObject(const Window& b) : type(_Window), win(const_cast<Window*>(&b)) {}
+
+        UIObject(const UIObject&) = default;
+        UIObject& operator=(const UIObject&) = default;
+        UIObject(UIObject&&) noexcept = default;
+        UIObject& operator=(UIObject&&) noexcept = default;
+    };
+
+    struct Window
+    {
+        bool disabled = false;
+        std::string title = "undefined";
+        rl::Rectangle rect = {};
+        std::vector<UIObject> elements;
+        int uniqueid = -1;
     };
 
     enum class ValueType {
@@ -92,29 +152,6 @@ namespace Types
         opcodes type = r_nop;
         Value Arg1, Arg2, Arg3;
         Value Output;
-    };
-
-    enum UIObjectType
-    {
-        None,
-        _Button
-    };
-
-    struct UIObject
-    {
-        UIObjectType type = None;
-        Button btn;
-
-        UIObject() = default;
-        ~UIObject() = default;
-
-        UIObject(const Button& b) : type(_Button), btn(b) {}
-        UIObject(Button&& b) noexcept : type(_Button), btn(std::move(b)) {}
-
-        UIObject(const UIObject&) = default;
-        UIObject& operator=(const UIObject&) = default;
-        UIObject(UIObject&&) noexcept = default;
-        UIObject& operator=(UIObject&&) noexcept = default;
     };
 
     struct Layer
