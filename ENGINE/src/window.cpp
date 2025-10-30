@@ -189,7 +189,7 @@ namespace Window
 
 		namespace callbacks
 		{
-			void RenderAllWindowObjects()
+			void RenderAllLayers()
 			{
 				std::vector<Types::Layer> Windows;
 
@@ -399,7 +399,7 @@ namespace Window
 		callbacks::DoButtonCallBacks();
 		callbacks::DoInputCallbacksOnScreen(); //local area
 		callbacks::DoInput();
-		callbacks::RenderAllWindowObjects();
+		callbacks::RenderAllLayers();
 
 		if (::debug)
 		{

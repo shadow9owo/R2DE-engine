@@ -30,7 +30,7 @@ namespace Window
 
 	namespace callbacks
 	{
-		extern void RenderAllWindowObjects();
+		extern void RenderAllLayers();
 		extern void DoInput();
 		extern void DoButtonCallBacks();
 		extern void DoInputCallbacksOnScreen();
