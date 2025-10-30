@@ -15,4 +15,6 @@ namespace data
 	// headers
 	Types::Layer rootlayer;
 	std::vector<Types::Layer> Layers;
+
+	bool wipedrop = false;
 }

@@ -80,13 +80,13 @@ namespace Window
 
 		data::Layers.reserve(128);
 
-		Types::Button Quit = { false, &Utils::Quit,"Quit",false,{0,670},24,rl::GetFontDefault(),{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
+		Types::Button Quit = { false, Utils::Quit,"Quit",false,{0,670},24,rl::GetFontDefault(),{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
 
-		Types::Button Save = { false, &Utils::Save,"Save",false,{0,670},24,rl::GetFontDefault(),{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
+		Types::Button Save = { false, Utils::Save,"Save",false,{0,670},24,rl::GetFontDefault(),{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
 
-		Types::Button Load = { false, &Utils::Load,"Load",false,{0,670},24,rl::GetFontDefault(),{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
+		Types::Button Load = { false, Utils::Load,"Load",false,{0,670},24,rl::GetFontDefault(),{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
 
-		Types::Button Build = { false, &Utils::Build,"Build",false,{0,670},24,rl::GetFontDefault(),{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK};
+		Types::Button Build = { false, Utils::Build,"Build",false,{0,670},24,rl::GetFontDefault(),{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK};
 		
 		Quit.position.x = offset;
 		Save.position.x = Quit.position.x + Qmessure(Quit).x + offset;
@@ -95,10 +95,10 @@ namespace Window
 
 		data::rootlayer.priority = -1;
 
-		data::rootlayer.objects.push_back(Load);
-		data::rootlayer.objects.push_back(Save);
-		data::rootlayer.objects.push_back(Quit);
-		data::rootlayer.objects.push_back(Build);
+		data::rootlayer.objects.push_back(Types::UIObject(Load));
+		data::rootlayer.objects.push_back(Types::UIObject(Save));
+		data::rootlayer.objects.push_back(Types::UIObject(Quit));
+		data::rootlayer.objects.push_back(Types::UIObject(Build));
 
 		data::Layers.push_back(data::rootlayer);
 
@@ -108,8 +108,8 @@ namespace Window
 		Types::Label PosInfo = { 24,std::to_string(mouse.x) + " || " + std::to_string(mouse.y),rl::GetFontDefault(),Types::PIVOT::TopLeft,{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX } ,{ 0,8 } ,callbacks::UpdateDebugValues,{ 0,0,0,255 } ,{ 0,0,0,255} ,1};
 		Types::Label FrameRate = { 24,std::to_string(rl::GetFPS()) + " || " + std::to_string(rl::GetFrameTime()),rl::GetFontDefault(),Types::PIVOT::TopLeft,{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX} ,{0,PosInfo.position.y + 24} ,callbacks::UpdateDebugValues,{0,0,0,255} ,{0,0,0,255},2};
 
-		debug.objects.push_back(PosInfo);
-		debug.objects.push_back(FrameRate);
+		debug.objects.push_back(Types::UIObject(PosInfo));
+		debug.objects.push_back(Types::UIObject(FrameRate));
 
 		data::Layers.push_back(debug);
 
@@ -123,77 +123,51 @@ namespace Window
 			void SpawnFunction()
 			{
 				::Utils::Log("SpawnFunction()");
-				WipeDrop();
+				WipePreDrop();
 				return;
 			}
 
 			void MakeModule()
 			{
 				::Utils::Log("MakeModule()");
-				WipeDrop();
+				WipePreDrop();
 				return;
 			}
 
 			void List()
 			{
 				::Utils::Log("List()");
-				WipeDrop();
+				WipePreDrop();
 				return;
 			}
 
 			void Delete()
 			{
 				::Utils::Log("Delete()");
-				WipeDrop();
+				WipePreDrop();
 				return;
 			}
 
 			//utility
+
+			void WipePreDrop()
+			{
+				data::wipedrop = true;
+			}
+
 			void WipeDrop()
 			{
-				void (*SpawnFunction)() = (*UI::SpawnerDrop::SpawnFunction);
-				void (*MakeModule)() = (*UI::SpawnerDrop::MakeModule);
-				void (*List)() = (*UI::SpawnerDrop::List);
-				void (*Delete)() = (*UI::SpawnerDrop::Delete);
-
-				std::vector<Types::Layer> Windows;
-
-				for (Types::Layer i : data::Layers)
+				for (auto it = data::Layers.begin(); it != data::Layers.end(); )
 				{
-					Windows.push_back(i);
-				}
-
-				std::sort(Windows.begin(), Windows.end(),
-					[](const Types::Layer& a, const Types::Layer& b)
+					if (it->priority == 1)
 					{
-						return a.priority < b.priority;
-					});
-
-				for (Types::Layer& i : data::Layers)
-				{
-					auto& objs = i.objects;
-
-					for (auto it = objs.begin(); it != objs.end(); )
+						it = data::Layers.erase(it);
+					}
+					else
 					{
-						auto& j = *it;
-
-						if (j.type == Types::_Button)
-						{
-							if (j.btn.exec == SpawnFunction ||
-								j.btn.exec == MakeModule ||
-								j.btn.exec == List ||
-								j.btn.exec == Delete)
-							{
-								it = objs.erase(it);
-								continue;
-							}
-						}
-
 						++it;
 					}
 				}
-
-				return;
 			}
 		}
 	}
@@ -231,9 +205,9 @@ namespace Window
 						return a.priority < b.priority;
 					});
 
-				for (auto& i : data::Layers) // reference, not copy
+				for (auto& i : data::Layers)
 				{
-					for (auto& j : i.objects) // reference, not copy
+					for (auto& j : i.objects)
 					{
 						if (j.type == Types::_Button)
 						{
@@ -373,7 +347,7 @@ namespace Window
 				{
 					auto& objs = i.objects;
 
-					for (auto it = objs.begin(); it != objs.end(); )
+					for (auto it = objs.begin(); it != objs.end();)
 					{
 						auto& j = *it;
 
@@ -401,7 +375,7 @@ namespace Window
 							{
 								if (j.btn.exec)
 								{
-									((void(*)())j.btn.exec)();
+									j.btn.exec();
 								}
 								else
 								{
@@ -410,21 +384,24 @@ namespace Window
 							}
 						}
 
-						++it;
+						++it; // only increment when not erased
 					}
 				}
+
 				return;
 			}
+
+			bool i = false;
 
 			void DoInputCallbacksOnScreen()
 			{
 				if (rl::IsMouseButtonPressed(0))
 				{
-					//deactivate
-					UI::SpawnerDrop::WipeDrop();
+					UI::SpawnerDrop::WipePreDrop();
 					::Utils::Log("left mouse button pressed");
 				}
-				else if (rl::IsMouseButtonPressed(1))
+				
+				if (rl::IsMouseButtonPressed(1))
 				{
 					mouse = GetMousePosPro();
 
@@ -433,19 +410,19 @@ namespace Window
 					Types::Layer options = {};
 					options.priority = 1;
 
-					Types::Button SpawnFunction = { false, &UI::SpawnerDrop::SpawnFunction,"SpawnFunction",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
-					Types::Button MakeModule = { false, &UI::SpawnerDrop::MakeModule,"MakeModule",false,{mouse.x,mouse.y},12, rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
-					Types::Button List = { false, &UI::SpawnerDrop::List,"List",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
-					Types::Button Delete = { false, &UI::SpawnerDrop::Delete,"Delete",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
+					Types::Button SpawnFunction = { false, UI::SpawnerDrop::SpawnFunction,"SpawnFunction",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
+					Types::Button MakeModule = { false, UI::SpawnerDrop::MakeModule,"MakeModule",false,{mouse.x,mouse.y},12, rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
+					Types::Button List = { false, UI::SpawnerDrop::List,"List",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
+					Types::Button Delete = { false, UI::SpawnerDrop::Delete,"Delete",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
 					
 					MakeModule.position.y = SpawnFunction.position.y + Qmessure(SpawnFunction).y;
 					List.position.y = MakeModule.position.y + Qmessure(MakeModule).y;
 					Delete.position.y = List.position.y + Qmessure(List).y;
 
-					options.objects.push_back(SpawnFunction);
-					options.objects.push_back(MakeModule);
-					options.objects.push_back(List);
-					options.objects.push_back(Delete);
+					options.objects.push_back(Types::UIObject(SpawnFunction));
+					options.objects.push_back(Types::UIObject(MakeModule));
+					options.objects.push_back(Types::UIObject(List));
+					options.objects.push_back(Types::UIObject(Delete));
 
 					data::Layers.push_back(options);
 
@@ -471,9 +448,13 @@ namespace Window
 				for (auto& obj : layer.objects)
 				{
 					if (obj.type == Types::_Label && obj.lbl.uniqueid == 1)
-						obj.lbl.callback(1,&obj.lbl);
+					{
+						obj.lbl.callback(1, &obj.lbl);
+					}
 					else if (obj.type == Types::_Label && obj.lbl.uniqueid == 2)
-						obj.lbl.callback(2,&obj.lbl);
+					{
+						obj.lbl.callback(2, &obj.lbl);
+					}
 				}
 				break;
 			}
@@ -489,6 +470,13 @@ namespace Window
 		callbacks::DoInputCallbacksOnScreen(); //local area
 		callbacks::DoInput();
 		callbacks::RenderAllLayers();
+
+		if (data::wipedrop)
+		{
+			UI::SpawnerDrop::WipeDrop();
+			data::wipedrop = false;
+		}
+
 
 		if (::debug)
 		{

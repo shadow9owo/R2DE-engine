@@ -24,13 +24,13 @@ namespace Types
         void (*exec)() = nullptr;
         std::string text = "nul";
         bool disabled = false;
-        rl::Vector2 position = { 0,0 }; //its like if this value got added up every time a new definition is made
+        rl::Vector2 position = { 0,0 };
         int fontsize = 24;
         rl::Font font = rl::GetFontDefault();
-        rl::Rectangle MinMax = { INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX }; //disables it uncap format:: minx , miny, maxx, maxy
+        rl::Rectangle MinMax = { INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX };
         PIVOT pivot = PIVOT::Middle;
-        rl::Color Def = { rl::WHITE };
-        rl::Color Onhover = { rl::DARKGRAY };
+        rl::Color Def = rl::WHITE;
+        rl::Color Onhover = rl::DARKGRAY;
         int uniqueid = -1;
     };
 
@@ -43,8 +43,8 @@ namespace Types
         rl::Rectangle MinMax = { INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX };
         rl::Vector2 position = { 0,0 };
         void (*callback)(int, void*) = nullptr;
-        rl::Color Def = { 0,0,0,0 };
-        rl::Color Onhover = { rl::DARKGRAY };
+        rl::Color Def = rl::BLACK;      // was {0,0,0,0}, invisible by default
+        rl::Color Onhover = rl::DARKGRAY;
         int uniqueid = -1;
     };
 
@@ -56,27 +56,26 @@ namespace Types
         _Label
     };
 
-    struct Window; // forward decl to break the cycle
+    struct Window;
 
     struct UIObject
     {
         UIObjectType type = None;
-        Button btn;
-        Label lbl;
-        Window* win = nullptr; // non-owning pointer; avoids incomplete-type issues
+        Button btn{};
+        Label lbl{};
+        Window* win = nullptr;
 
         UIObject() = default;
         ~UIObject() = default;
 
-        UIObject(const Button& b) : type(_Button), btn(b) {}
-        UIObject(Button&& b) noexcept : type(_Button), btn(std::move(b)) {}
+        UIObject(const Button& b) : type(_Button), btn(b), lbl(), win(nullptr) {}
+        UIObject(Button&& b) noexcept : type(_Button), btn(std::move(b)), lbl(), win(nullptr) {}
 
-        UIObject(const Label& b) : type(_Label), lbl(b) {}
-        UIObject(Label&& b) noexcept : type(_Label), lbl(std::move(b)) {}
+        UIObject(const Label& b) : type(_Label), btn(), lbl(b), win(nullptr) {}
+        UIObject(Label&& b) noexcept : type(_Label), btn(), lbl(std::move(b)), win(nullptr) {}
 
-        // window variants – store pointer (caller owns lifetime)
-        UIObject(Window* b) : type(_Window), win(b) {}
-        UIObject(const Window& b) : type(_Window), win(const_cast<Window*>(&b)) {}
+        UIObject(Window* b) : type(_Window), btn(), lbl(), win(b) {}
+        UIObject(Window& b) : type(_Window), btn(), lbl(), win(&b) {}
 
         UIObject(const UIObject&) = default;
         UIObject& operator=(const UIObject&) = default;
@@ -139,7 +138,7 @@ namespace Types
         r_ret,
         r_cmp,
         r_nop,
-        r_div, // cant define it as "div" so every op has r_ before it now so the compiler doesnt bitch
+        r_div,
         r_mul,
         r_dec,
         r_inc,
@@ -157,7 +156,7 @@ namespace Types
     struct Layer
     {
         std::vector<UIObject> objects;
-        int priority;
+        int priority = 0;
     };
 
     struct Module
@@ -165,7 +164,7 @@ namespace Types
         std::string name;
         Value Arg1, Arg2, Arg3;
         Value Output;
-        void* eval;
+        void* eval = nullptr;
     };
 
     struct FunctionUnion
@@ -173,8 +172,8 @@ namespace Types
         Node node;
         Module module;
 
-        FunctionUnion() {}
-        ~FunctionUnion() {}
+        FunctionUnion() = default;
+        ~FunctionUnion() = default;
 
         FunctionUnion(FunctionUnion&& other) noexcept
         {
@@ -199,7 +198,7 @@ namespace Types
     struct Object
     {
         FunctionUnion function;
-        rl::Vector2 position; // throw away later useless info
+        rl::Vector2 position;
 
         Object() = default;
         Object(Object&&) = default;

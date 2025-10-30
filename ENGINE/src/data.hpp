@@ -12,4 +12,6 @@ namespace data
 
 	extern Types::Layer rootlayer;
 	extern std::vector<Types::Layer> Layers;
+
+	extern bool wipedrop;
 }

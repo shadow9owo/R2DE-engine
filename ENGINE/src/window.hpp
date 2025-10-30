@@ -30,6 +30,7 @@ namespace Window
 	{
 		namespace SpawnerDrop
 		{
+			extern void WipePreDrop();
 			extern void WipeDrop();
 			extern void SpawnFunction();
 			extern void MakeModule();
