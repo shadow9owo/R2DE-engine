@@ -312,7 +312,31 @@ namespace Window
 
 							rl::DrawTextPro(lbl.font, lbl.text.c_str(), pos, { 0,0 }, 0, lbl.fontsize, 0.2f, lbl.Def);
 						}
+						else if (j.type == Types::_Window)
+						{
+							Types::Window& win = *j.win;
+							rl::Rectangle rect = win.rect;
 
+							for (size_t i = 0; i != j.win->elements.size(); i++)
+							{
+								switch (j.win->elements[i].type)
+								{
+								case Types::_Button:
+									j.btn.position.x = j.btn.position.x + rect.x;
+									j.btn.position.y = j.btn.position.y + rect.y;
+									break;
+								case Types::_Window:
+									//useless return maybe impl later
+									break;
+								case Types::_Label:
+									j.lbl.position.x = j.lbl.position.x + rect.x;
+									j.lbl.position.y = j.lbl.position.y + rect.y;
+									break;
+								default:
+									break;
+								}
+							}
+						}
 					}
 				}
 
