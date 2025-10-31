@@ -336,6 +336,8 @@ namespace Window
 									break;
 								}
 							}
+
+							rl::DrawTextPro(rl::GetFontDefault(), j.win->title.c_str(), {0,12}, {0,0}, 0, 12, 0.2f, {0,0,0,255});
 						}
 					}
 				}
