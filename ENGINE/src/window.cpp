@@ -93,7 +93,7 @@ namespace Window
 		Load.position.x = Save.position.x + Qmessure(Save).x + offset;
 		Build.position.x = Load.position.x + Qmessure(Load).x + offset;
 
-		data::rootlayer.priority = -1;
+		data::rootlayer.priority = Types::LayerInts::LAYER_APPLICATION_QUICK_ACTIONS;
 
 		data::rootlayer.objects.push_back(Types::UIObject(Load));
 		data::rootlayer.objects.push_back(Types::UIObject(Save));
@@ -103,7 +103,7 @@ namespace Window
 		data::Layers.push_back(data::rootlayer);
 
 		Types::Layer debug = {};
-		debug.priority = 9999;
+		debug.priority = Types::LayerInts::LAYER_DEBUG;
 
 		Types::Label PosInfo = { 24,std::to_string(mouse.x) + " || " + std::to_string(mouse.y),rl::GetFontDefault(),Types::PIVOT::TopLeft,{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX } ,{ 0,8 } ,callbacks::UpdateDebugValues,{ 0,0,0,255 } ,{ 0,0,0,255} ,1};
 		Types::Label FrameRate = { 24,std::to_string(rl::GetFPS()) + " || " + std::to_string(rl::GetFrameTime()),rl::GetFontDefault(),Types::PIVOT::TopLeft,{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX} ,{0,PosInfo.position.y + 24} ,callbacks::UpdateDebugValues,{0,0,0,255} ,{0,0,0,255},2};
@@ -159,7 +159,7 @@ namespace Window
 			{
 				for (auto it = data::Layers.begin(); it != data::Layers.end(); )
 				{
-					if (it->priority == 1)
+					if (it->priority == Types::LayerInts::LAYER_POPUP_MENU)
 					{
 						it = data::Layers.erase(it);
 					}
@@ -178,10 +178,10 @@ namespace Window
 			{
 				switch (arg)
 				{
-				case 1:
+				case Types::UniqueIds::MOUSE_POS_ID:
 					static_cast<Types::Label*>(ptr)->text = std::to_string(mouse.x) + " || " + std::to_string(mouse.y);
 					break;
-				case 2:
+				case Types::UniqueIds::FPS_ID:
 					static_cast<Types::Label*>(ptr)->text = std::to_string(rl::GetFPS()) + " || " + std::to_string(rl::GetFrameTime());
 					break;
 				default:
@@ -434,7 +434,7 @@ namespace Window
 					UI::SpawnerDrop::WipeDrop();
 
 					Types::Layer options = {};
-					options.priority = 1;
+					options.priority = Types::LayerInts::LAYER_POPUP_MENU;
 
 					Types::Button SpawnFunction = { false, UI::SpawnerDrop::SpawnFunction,"SpawnFunction",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
 					Types::Button MakeModule = { false, UI::SpawnerDrop::MakeModule,"MakeModule",false,{mouse.x,mouse.y},12, rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
@@ -469,17 +469,17 @@ namespace Window
 	{
 		for (auto& layer : data::Layers)
 		{
-			if (layer.priority == 9999)
+			if (layer.priority == Types::LayerInts::LAYER_DEBUG)
 			{
 				for (auto& obj : layer.objects)
 				{
-					if (obj.type == Types::_Label && obj.lbl.uniqueid == 1)
+					if (obj.type == Types::_Label && obj.lbl.uniqueid == Types::UniqueIds::MOUSE_POS_ID)
 					{
-						obj.lbl.callback(1, &obj.lbl);
+						obj.lbl.callback(Types::UniqueIds::MOUSE_POS_ID, &obj.lbl);
 					}
-					else if (obj.type == Types::_Label && obj.lbl.uniqueid == 2)
+					else if (obj.type == Types::_Label && obj.lbl.uniqueid == Types::UniqueIds::FPS_ID)
 					{
-						obj.lbl.callback(2, &obj.lbl);
+						obj.lbl.callback(Types::UniqueIds::FPS_ID, &obj.lbl);
 					}
 				}
 				break;

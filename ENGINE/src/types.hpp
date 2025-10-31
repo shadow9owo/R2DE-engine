@@ -12,6 +12,19 @@ namespace rl
 
 namespace Types
 {
+    namespace LayerInts
+    {
+        constexpr int LAYER_APPLICATION_QUICK_ACTIONS = -1;
+        constexpr int LAYER_POPUP_MENU = 1;
+        constexpr int LAYER_DEBUG = 9999;
+    }
+
+    namespace UniqueIds
+    {
+        constexpr int MOUSE_POS_ID = 1;
+        constexpr int FPS_ID = 2;
+    }
+
     enum class PIVOT {
         TopLeft, TopMiddle, TopRight,
         MiddleLeft, Middle, MiddleRight,
