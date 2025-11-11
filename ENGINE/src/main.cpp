@@ -20,7 +20,7 @@ int main()
 {
     rl::SetConfigFlags(rl::FLAG_VSYNC_HINT | rl::FLAG_WINDOW_HIGHDPI | rl::FLAG_WINDOW_RESIZABLE);
 
-    rl::InitWindow(BaseTexture.x, BaseTexture.y, "GAME");
+    rl::InitWindow((int)BaseTexture.x, (int)BaseTexture.y, "GAME");
 
     if (rl::GetMonitorWidth(rl::GetCurrentMonitor()) < BaseTexture.x || rl::GetMonitorHeight(rl::GetCurrentMonitor()) < BaseTexture.y)
     {
@@ -28,9 +28,9 @@ int main()
         return -1; //crash the ui is not made for such small resolutions
     }
 
-    rl::SetWindowMinSize(BaseTexture.x, BaseTexture.y);
+    rl::SetWindowMinSize((int)BaseTexture.x, (int)BaseTexture.y);
 
-	text = rl::LoadRenderTexture(BaseTexture.x, BaseTexture.y);
+	text = rl::LoadRenderTexture((int)BaseTexture.x, (int)BaseTexture.y);
 
     rl::SetTextureFilter(text.texture, rl::TEXTURE_FILTER_POINT);
 
@@ -50,7 +50,7 @@ int main()
         {
             rl::Vector2 size = { (float)rl::GetScreenWidth(), (float)rl::GetScreenHeight() };
             rl::UnloadRenderTexture(text); // i hate this
-            text = rl::LoadRenderTexture(size.x, size.y);
+            text = rl::LoadRenderTexture((int)size.x, (int)size.y);
             Window::DoRender();
         }
 

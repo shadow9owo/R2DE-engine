@@ -10,8 +10,8 @@ namespace projecthandling
 {
 	namespace json
 	{
-		extern bool exporttofile(const Types::Project& project,std::string path);
-		extern Types::Project importprojectfromfile(std::string path);
+		extern bool exporttofile(const Types::Project& project,std::string& path);
+		extern Types::Project importprojectfromfile(std::string& path);
 	}
 
 	namespace f_export

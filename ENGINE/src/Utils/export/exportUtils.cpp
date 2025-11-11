@@ -9,7 +9,7 @@ namespace projecthandling
 {
     namespace json
     {
-        bool exporttofile(const Types::Project& project, std::string path)
+        bool exporttofile(const Types::Project& project, std::string& path)
         {
             try
             {
@@ -36,7 +36,7 @@ namespace projecthandling
             }
         }
 
-        Types::Project importprojectfromfile(std::string path)
+        Types::Project importprojectfromfile(std::string& path)
         {
             Types::Project project;
 
