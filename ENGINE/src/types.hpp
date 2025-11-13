@@ -16,6 +16,8 @@ namespace Types
     {
         constexpr int LAYER_APPLICATION_QUICK_ACTIONS = -1;
         constexpr int LAYER_POPUP_MENU = 1;
+        constexpr int LAYER_WINDOW_DEFAULT = 2;
+        constexpr int LAYER_WINDOW_OVERLAY = 3; //important for messageboxes
         constexpr int LAYER_DEBUG = 9999;
     }
 
@@ -23,6 +25,8 @@ namespace Types
     {
         constexpr int MOUSE_POS_ID = 1;
         constexpr int FPS_ID = 2;
+        constexpr int SPAWN_WINDOW_ID = 3;
+        constexpr int LIST_WINDOW_ID = 4;
     }
 
     enum class PIVOT {
@@ -78,17 +82,17 @@ namespace Types
         Label lbl{};
         Window* win = nullptr;
 
+        int windowIndex = -1;
+
         UIObject() = default;
-        ~UIObject() = default;
 
-        UIObject(const Button& b) : type(_Button), btn(b), lbl(), win(nullptr) {}
-        UIObject(Button&& b) noexcept : type(_Button), btn(std::move(b)), lbl(), win(nullptr) {}
+        UIObject(const Button& b) : type(_Button), btn(b) {}
+        UIObject(Button&& b) noexcept : type(_Button), btn(std::move(b)) {}
 
-        UIObject(const Label& b) : type(_Label), btn(), lbl(b), win(nullptr) {}
-        UIObject(Label&& b) noexcept : type(_Label), btn(), lbl(std::move(b)), win(nullptr) {}
+        UIObject(const Label& b) : type(_Label), lbl(b) {}
+        UIObject(Label&& b) noexcept : type(_Label), lbl(std::move(b)) {}
 
-        UIObject(Window* b) : type(_Window), btn(), lbl(), win(b) {}
-        UIObject(Window& b) : type(_Window), btn(), lbl(), win(&b) {}
+        UIObject(Window* w) : type(_Window), win(w) {}
 
         UIObject(const UIObject&) = default;
         UIObject& operator=(const UIObject&) = default;
@@ -96,14 +100,6 @@ namespace Types
         UIObject& operator=(UIObject&&) noexcept = default;
     };
 
-    struct Window
-    {
-        bool disabled = false;
-        std::string title = "undefined";
-        rl::Rectangle rect = {};
-        std::vector<UIObject> elements;
-        int uniqueid = -1;
-    };
 
     enum class ValueType {
         INT, INT64, DOUBLE, FLOAT, CHAR, UNSIGNED_CHAR, PTR, STRING, NONE
@@ -170,6 +166,18 @@ namespace Types
     {
         std::vector<UIObject> objects;
         int priority = 0;
+    };
+
+    struct Window
+    {
+        bool disabled = false;
+        std::string title = "undefined";
+        rl::Rectangle rect = {};
+        std::vector<UIObject> elements;
+        int uniqueid = -1;
+        rl::Color bgcolor = { 255,255,255,255 };
+        void (*callback)(Types::Layer*) = nullptr;
+        void* userdata = nullptr;
     };
 
     struct Module

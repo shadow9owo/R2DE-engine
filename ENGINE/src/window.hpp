@@ -11,6 +11,7 @@ namespace Window
 {
 	namespace callbacks
 	{
+		extern void WipeLayer(Types::Layer input);
 		extern void UpdateDebugValues(int arg, void* ptr);
 		extern void RenderAllLayers();
 		extern void DoInput();
@@ -33,7 +34,6 @@ namespace Window
 			extern void WipePreDrop();
 			extern void WipeDrop();
 			extern void SpawnFunction();
-			extern void MakeModule();
 			extern void List();
 			extern void Delete();
 		}

@@ -34,6 +34,8 @@ int main()
 
     rl::SetTextureFilter(text.texture, rl::TEXTURE_FILTER_POINT);
 
+    rl::SetExitKey(rl::KEY_RIGHT_CONTROL);
+
     rl::SetTargetFPS(24);
 
 	Window::DoInit();

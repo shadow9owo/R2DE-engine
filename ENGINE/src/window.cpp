@@ -27,6 +27,18 @@ namespace Window
 
 	namespace Utils
 	{
+		void ExitPressed(Types::Layer* input)
+		{
+			if (rl::IsKeyPressed(rl::KEY_ESCAPE))
+			{
+				return callbacks::WipeLayer(*input);
+			}
+			else
+			{
+				return;
+			}
+		}
+
 		void Quit()
 		{
 			::Utils::Log("Quit triggered");
@@ -122,20 +134,59 @@ namespace Window
 		{
 			void SpawnFunction()
 			{
-				::Utils::Log("SpawnFunction()");
-				WipePreDrop();
-				return;
-			}
+				::Types::Layer WindowLayer;
 
-			void MakeModule()
-			{
-				::Utils::Log("MakeModule()");
+				WindowLayer.priority = ::Types::LayerInts::LAYER_WINDOW_DEFAULT;
+				WindowLayer.objects = {};
+
+				Types::Window* win = new Types::Window{
+					false,
+					"Spawn UI",
+					{200, 200, 200, 200},
+					{},
+					Types::UniqueIds::LIST_WINDOW_ID,
+					rl::GRAY,
+					Utils::ExitPressed,
+					&WindowLayer
+				};
+
+				WindowLayer.objects.emplace_back(Types::UIObject(win));
+
+				::data::Layers.push_back(WindowLayer);
+
+				Types::Layer* Layerptr = &data::Layers.back();
+				win->userdata = Layerptr;
+
+				::Utils::Log("SpawnFunction()");
 				WipePreDrop();
 				return;
 			}
 
 			void List()
 			{
+				::Types::Layer WindowLayer;
+
+				WindowLayer.priority = ::Types::LayerInts::LAYER_WINDOW_DEFAULT;
+				WindowLayer.objects = {};
+
+				Types::Window* win = new Types::Window {
+					false,
+					"List UI",
+					{200, 200, 200, 200},
+					{},
+					Types::UniqueIds::LIST_WINDOW_ID,
+					rl::GRAY,
+					Utils::ExitPressed,
+					&WindowLayer
+				};
+
+				WindowLayer.objects.emplace_back(Types::UIObject(win));
+
+				::data::Layers.push_back(WindowLayer);
+
+				Types::Layer* Layerptr = &data::Layers.back();
+				win->userdata = Layerptr;
+
 				::Utils::Log("List()");
 				WipePreDrop();
 				return;
@@ -157,9 +208,20 @@ namespace Window
 
 			void WipeDrop()
 			{
+				::Types::Layer a;
+				a.priority = ::Types::LayerInts::LAYER_POPUP_MENU;
+				callbacks::WipeLayer(a);
+			}
+		}
+	}
+
+		namespace callbacks
+		{
+			void WipeLayer(Types::Layer input)
+			{
 				for (auto it = data::Layers.begin(); it != data::Layers.end(); )
 				{
-					if (it->priority == Types::LayerInts::LAYER_POPUP_MENU)
+					if (it->priority == input.priority)
 					{
 						it = data::Layers.erase(it);
 					}
@@ -168,12 +230,9 @@ namespace Window
 						++it;
 					}
 				}
+				return;
 			}
-		}
-	}
 
-		namespace callbacks
-		{
 			void UpdateDebugValues(int arg,void* ptr)
 			{
 				switch (arg)
@@ -314,19 +373,34 @@ namespace Window
 						}
 						else if (j.type == Types::_Window)
 						{
+							if (!j.win) continue;
+
 							Types::Window& win = *j.win;
 							rl::Rectangle rect = win.rect;
 
-							for (size_t i = 0; i != j.win->elements.size(); i++)
+							rl::DrawTextPro(
+								rl::GetFontDefault(),
+								win.title.c_str(),
+								{ rect.x + 4, rect.y + 4 },
+								{ 0,0 },
+								0,
+								16,
+								0,
+								rl::BLACK
+							);
+
+							rl::DrawRectangleRec(rect, win.bgcolor);
+
+							for (size_t i = 0; i != win.elements.size(); i++)
 							{
-								switch (j.win->elements[i].type)
+								switch (win.elements[i].type)
 								{
 								case Types::_Button:
 									j.btn.position.x = j.btn.position.x + rect.x;
 									j.btn.position.y = j.btn.position.y + rect.y;
 									break;
 								case Types::_Window:
-									//useless return maybe impl later
+									assert("not implemented");
 									break;
 								case Types::_Label:
 									j.lbl.position.x = j.lbl.position.x + rect.x;
@@ -336,8 +410,10 @@ namespace Window
 									break;
 								}
 							}
-
-							rl::DrawTextPro(rl::GetFontDefault(), j.win->title.c_str(), {0,12}, {0,0}, 0, 12, 0.2f, {0,0,0,255});
+							if (j.win->callback)
+							{
+								j.win->callback(static_cast<Types::Layer*>(j.win->userdata));
+							}
 						}
 					}
 				}
@@ -386,7 +462,7 @@ namespace Window
 							}
 						}
 
-						if (CheckCollisionRecs(GetButtonSize(j.btn), { mouse.x, mouse.y, 1, 1 }))
+						if (rl::CheckCollisionRecs(GetButtonSize(j.btn), { mouse.x, mouse.y, 1, 1 }))
 						{
 							j.btn.hovering = true;
 						}
@@ -437,16 +513,13 @@ namespace Window
 					options.priority = Types::LayerInts::LAYER_POPUP_MENU;
 
 					Types::Button SpawnFunction = { false, UI::SpawnerDrop::SpawnFunction,"SpawnFunction",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
-					Types::Button MakeModule = { false, UI::SpawnerDrop::MakeModule,"MakeModule",false,{mouse.x,mouse.y},12, rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
 					Types::Button List = { false, UI::SpawnerDrop::List,"List",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
 					Types::Button Delete = { false, UI::SpawnerDrop::Delete,"Delete",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
 					
-					MakeModule.position.y = SpawnFunction.position.y + Qmessure(SpawnFunction).y;
-					List.position.y = MakeModule.position.y + Qmessure(MakeModule).y;
+					List.position.y = SpawnFunction.position.y + Qmessure(SpawnFunction).y;
 					Delete.position.y = List.position.y + Qmessure(List).y;
 
 					options.objects.push_back(Types::UIObject(SpawnFunction));
-					options.objects.push_back(Types::UIObject(MakeModule));
 					options.objects.push_back(Types::UIObject(List));
 					options.objects.push_back(Types::UIObject(Delete));
 

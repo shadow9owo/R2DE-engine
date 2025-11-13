@@ -17,4 +17,6 @@ namespace data
 	std::vector<Types::Layer> Layers;
 
 	bool wipedrop = false;
+
+	Types::Window WindowBuffer[128] = {};
 }
