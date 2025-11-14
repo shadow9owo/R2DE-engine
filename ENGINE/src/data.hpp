@@ -14,6 +14,4 @@ namespace data
 	extern std::vector<Types::Layer> Layers;
 
 	extern bool wipedrop;
-
-	extern Types::Window WindowBuffer[128];
 }

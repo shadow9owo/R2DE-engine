@@ -5,6 +5,7 @@
 #include <vector>
 #include "data.hpp"
 #include <string>
+#include <raylib.h>
 
 namespace data
 {
@@ -17,6 +18,4 @@ namespace data
 	std::vector<Types::Layer> Layers;
 
 	bool wipedrop = false;
-
-	Types::Window WindowBuffer[128] = {};
 }

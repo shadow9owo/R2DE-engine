@@ -14,10 +14,11 @@ namespace Types
 {
     namespace LayerInts
     {
+        constexpr int AWAITING_WIPE = -9999;
         constexpr int LAYER_APPLICATION_QUICK_ACTIONS = -1;
         constexpr int LAYER_POPUP_MENU = 1;
         constexpr int LAYER_WINDOW_DEFAULT = 2;
-        constexpr int LAYER_WINDOW_OVERLAY = 3; //important for messageboxes
+        constexpr int LAYER_WINDOW_OVERLAY = 3; //important for messageboxes and such
         constexpr int LAYER_DEBUG = 9999;
     }
 
@@ -60,7 +61,7 @@ namespace Types
         rl::Rectangle MinMax = { INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX };
         rl::Vector2 position = { 0,0 };
         void (*callback)(int, void*) = nullptr;
-        rl::Color Def = rl::BLACK;      // was {0,0,0,0}, invisible by default
+        rl::Color Def = rl::BLACK;// was {0,0,0,0}, invisible by default
         rl::Color Onhover = rl::DARKGRAY;
         int uniqueid = -1;
     };
@@ -82,7 +83,7 @@ namespace Types
         Label lbl{};
         Window* win = nullptr;
 
-        int windowIndex = -1;
+        int windowIndex = 0;
 
         UIObject() = default;
 
@@ -177,7 +178,6 @@ namespace Types
         int uniqueid = -1;
         rl::Color bgcolor = { 255,255,255,255 };
         void (*callback)(Types::Layer*) = nullptr;
-        void* userdata = nullptr;
     };
 
     struct Module

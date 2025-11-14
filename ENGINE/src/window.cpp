@@ -2,6 +2,8 @@
 #include <Windows.h>
 #endif
 
+#define TITLEBARHEIGHT 21
+
 namespace rl
 {
 	#include <raylib.h>
@@ -27,14 +29,44 @@ namespace Window
 
 	namespace Utils
 	{
-		void ExitPressed(Types::Layer* input)
+		void WipeAwait()
+		{
+			for (int i = 0; i < (int)data::Layers.size(); i++)
+			{
+				if (data::Layers[i].priority == Types::LayerInts::AWAITING_WIPE)
+				{
+					data::Layers.erase(data::Layers.begin() + i);
+					break;
+				}
+			}
+			return;
+		}
+
+		void WindowTick(Types::Layer* input)
 		{
 			if (rl::IsKeyPressed(rl::KEY_ESCAPE))
 			{
 				return callbacks::WipeLayer(*input);
 			}
-			else
-			{
+			else {
+				for (Types::UIObject& a : input->objects)
+				{
+					if (a.type != Types::_Window || !a.win)
+						continue;
+
+					if (a.type == Types::_Window)
+					{
+						if (rl::CheckCollisionRecs({ a.win->rect.x,a.win->rect.y,a.win->rect.width,TITLEBARHEIGHT }, { mouse.x,mouse.y,4,4 }))
+						{
+							if (rl::IsMouseButtonDown(0))
+							{
+								a.win->rect.x = mouse.x - (a.win->rect.width / 2);
+								a.win->rect.y = mouse.y - (TITLEBARHEIGHT / 2); // titlebar height
+							}
+						}
+					}
+				}
+
 				return;
 			}
 		}
@@ -134,6 +166,22 @@ namespace Window
 		{
 			void SpawnFunction()
 			{
+				Types::Layer* layertowipe = nullptr;
+
+				for (auto& l : data::Layers)
+				{
+					if (l.priority == Types::LayerInts::LAYER_WINDOW_DEFAULT)
+					{
+						layertowipe = &l;
+						break;
+					}
+				}
+
+				if (layertowipe)
+				{
+					layertowipe->priority = ::Types::LayerInts::AWAITING_WIPE;
+				}
+
 				::Types::Layer WindowLayer;
 
 				WindowLayer.priority = ::Types::LayerInts::LAYER_WINDOW_DEFAULT;
@@ -144,18 +192,14 @@ namespace Window
 					"Spawn UI",
 					{200, 200, 200, 200},
 					{},
-					Types::UniqueIds::LIST_WINDOW_ID,
+					Types::UniqueIds::SPAWN_WINDOW_ID,
 					rl::GRAY,
-					Utils::ExitPressed,
-					&WindowLayer
+					&Utils::WindowTick
 				};
 
 				WindowLayer.objects.emplace_back(Types::UIObject(win));
 
 				::data::Layers.push_back(WindowLayer);
-
-				Types::Layer* Layerptr = &data::Layers.back();
-				win->userdata = Layerptr;
 
 				::Utils::Log("SpawnFunction()");
 				WipePreDrop();
@@ -164,28 +208,40 @@ namespace Window
 
 			void List()
 			{
+				Types::Layer* layertowipe = nullptr;
+
+				for (auto& l : data::Layers)
+				{
+					if (l.priority == Types::LayerInts::LAYER_WINDOW_DEFAULT)
+					{
+						layertowipe = &l;
+						break;
+					}
+				}
+
+				if (layertowipe)
+				{
+					layertowipe->priority = ::Types::LayerInts::AWAITING_WIPE;
+				}
+
 				::Types::Layer WindowLayer;
 
 				WindowLayer.priority = ::Types::LayerInts::LAYER_WINDOW_DEFAULT;
 				WindowLayer.objects = {};
 
-				Types::Window* win = new Types::Window {
+				Types::Window* win = new Types::Window{
 					false,
 					"List UI",
 					{200, 200, 200, 200},
 					{},
 					Types::UniqueIds::LIST_WINDOW_ID,
 					rl::GRAY,
-					Utils::ExitPressed,
-					&WindowLayer
+					&Utils::WindowTick
 				};
 
 				WindowLayer.objects.emplace_back(Types::UIObject(win));
 
 				::data::Layers.push_back(WindowLayer);
-
-				Types::Layer* Layerptr = &data::Layers.back();
-				win->userdata = Layerptr;
 
 				::Utils::Log("List()");
 				WipePreDrop();
@@ -266,6 +322,11 @@ namespace Window
 
 				for (auto& i : data::Layers)
 				{
+					if (i.priority == ::Types::LayerInts::AWAITING_WIPE)
+					{
+						continue;
+					}
+
 					for (auto& j : i.objects)
 					{
 						if (j.type == Types::_Button)
@@ -412,13 +473,15 @@ namespace Window
 									break;
 								}
 							}
-							if (j.win->callback)
+							if (j.win->callback) //drag
 							{
-								j.win->callback(static_cast<Types::Layer*>(j.win->userdata));
+								j.win->callback(&i);
 							}
 						}
 					}
 				}
+
+				Utils::WipeAwait();
 
 				return;
 			}
@@ -537,7 +600,6 @@ namespace Window
 			{
 				return;
 			}
-		
 	}
 
 	void debug()
