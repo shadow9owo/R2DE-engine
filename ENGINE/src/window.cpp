@@ -378,6 +378,10 @@ namespace Window
 							Types::Window& win = *j.win;
 							rl::Rectangle rect = win.rect;
 
+							rl::DrawRectangleRec(rect, win.bgcolor);
+
+							rl::DrawRectangleRec({ rect.x,rect.y,rect.width,17 + 4 }, { win.bgcolor.r,win.bgcolor.g,win.bgcolor.b,128});
+
 							rl::DrawTextPro(
 								rl::GetFontDefault(),
 								win.title.c_str(),
@@ -388,8 +392,6 @@ namespace Window
 								0,
 								rl::BLACK
 							);
-
-							rl::DrawRectangleRec(rect, win.bgcolor);
 
 							for (size_t i = 0; i != win.elements.size(); i++)
 							{
