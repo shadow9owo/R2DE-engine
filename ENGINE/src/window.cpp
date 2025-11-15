@@ -6,7 +6,7 @@
 
 namespace rl
 {
-	#include <raylib.h>
+#include <raylib.h>
 }
 
 #include "Utils/wrapper/pfdwrapper.hpp"
@@ -86,7 +86,7 @@ namespace Window
 			{
 				projecthandling::f_export::f_export();
 			}
-			else 
+			else
 			{
 				return; // save cancelled
 			}
@@ -130,8 +130,8 @@ namespace Window
 
 		Types::Button Load = { false, Utils::Load,"Load",false,{0,670},24,rl::GetFontDefault(),{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
 
-		Types::Button Build = { false, Utils::Build,"Build",false,{0,670},24,rl::GetFontDefault(),{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK};
-		
+		Types::Button Build = { false, Utils::Build,"Build",false,{0,670},24,rl::GetFontDefault(),{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
+
 		Quit.position.x = offset;
 		Save.position.x = Quit.position.x + Qmessure(Quit).x + offset;
 		Load.position.x = Save.position.x + Qmessure(Save).x + offset;
@@ -149,8 +149,8 @@ namespace Window
 		Types::Layer debug = {};
 		debug.priority = Types::LayerInts::LAYER_DEBUG;
 
-		Types::Label PosInfo = { 24,std::to_string(mouse.x) + " || " + std::to_string(mouse.y),rl::GetFontDefault(),Types::PIVOT::TopLeft,{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX } ,{ 0,8 } ,callbacks::UpdateDebugValues,{ 0,0,0,255 } ,{ 0,0,0,255} ,1};
-		Types::Label FrameRate = { 24,std::to_string(rl::GetFPS()) + " || " + std::to_string(rl::GetFrameTime()),rl::GetFontDefault(),Types::PIVOT::TopLeft,{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX} ,{0,PosInfo.position.y + 24} ,callbacks::UpdateDebugValues,{0,0,0,255} ,{0,0,0,255},2};
+		Types::Label PosInfo = { 24,std::to_string(mouse.x) + " || " + std::to_string(mouse.y),rl::GetFontDefault(),Types::PIVOT::TopLeft,{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX } ,{ 0,8 } ,callbacks::UpdateDebugValues,{ 0,0,0,255 } ,{ 0,0,0,255} ,1 };
+		Types::Label FrameRate = { 24,std::to_string(rl::GetFPS()) + " || " + std::to_string(rl::GetFrameTime()),rl::GetFontDefault(),Types::PIVOT::TopLeft,{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX} ,{0,PosInfo.position.y + 24} ,callbacks::UpdateDebugValues,{0,0,0,255} ,{0,0,0,255},2 };
 
 		debug.objects.push_back(Types::UIObject(PosInfo));
 		debug.objects.push_back(Types::UIObject(FrameRate));
@@ -187,20 +187,17 @@ namespace Window
 				WindowLayer.priority = ::Types::LayerInts::LAYER_WINDOW_DEFAULT;
 				WindowLayer.objects = {};
 
-				auto win = std::make_unique<Types::Window>(
-					Types::Window
-					{
-						false,
-						"Spawn UI",
-						{200, 200, 200, 200},
-						{},
-						Types::UniqueIds::SPAWN_WINDOW_ID,
-						rl::GRAY,
-						&Utils::WindowTick
-					}
-				);
+				Types::Window* win = new Types::Window{
+					false,
+					"Spawn UI",
+					{200, 200, 200, 200},
+					{},
+					Types::UniqueIds::SPAWN_WINDOW_ID,
+					rl::GRAY,
+					&Utils::WindowTick
+				};
 
-				WindowLayer.objects.emplace_back(std::move(win));
+				WindowLayer.objects.emplace_back(Types::UIObject(win));
 
 				::data::Layers.push_back(WindowLayer);
 
@@ -232,21 +229,17 @@ namespace Window
 				WindowLayer.priority = ::Types::LayerInts::LAYER_WINDOW_DEFAULT;
 				WindowLayer.objects = {};
 
+				Types::Window* win = new Types::Window{
+					false,
+					"List UI",
+					{200, 200, 200, 200},
+					{},
+					Types::UniqueIds::LIST_WINDOW_ID,
+					rl::GRAY,
+					&Utils::WindowTick
+				};
 
-				auto win = std::make_unique<Types::Window>(
-					Types::Window
-					{
-						false,
-						"List UI",
-						{200, 200, 200, 200},
-						{},
-						Types::UniqueIds::LIST_WINDOW_ID,
-						rl::GRAY,
-						&Utils::WindowTick
-					}
-				);
-
-				WindowLayer.objects.emplace_back(std::move(win));
+				WindowLayer.objects.emplace_back(Types::UIObject(win));
 
 				::data::Layers.push_back(WindowLayer);
 
@@ -278,343 +271,343 @@ namespace Window
 		}
 	}
 
-		namespace callbacks
+	namespace callbacks
+	{
+		void WipeLayer(Types::Layer input)
 		{
-			void WipeLayer(Types::Layer input)
+			for (auto it = data::Layers.begin(); it != data::Layers.end(); )
 			{
-				for (auto it = data::Layers.begin(); it != data::Layers.end(); )
+				if (it->priority == input.priority)
 				{
-					if (it->priority == input.priority)
+					it = data::Layers.erase(it);
+				}
+				else
+				{
+					++it;
+				}
+			}
+			return;
+		}
+
+		void UpdateDebugValues(int arg, void* ptr)
+		{
+			switch (arg)
+			{
+			case Types::UniqueIds::MOUSE_POS_ID:
+				static_cast<Types::Label*>(ptr)->text = std::to_string(mouse.x) + " || " + std::to_string(mouse.y);
+				break;
+			case Types::UniqueIds::FPS_ID:
+				static_cast<Types::Label*>(ptr)->text = std::to_string(rl::GetFPS()) + " || " + std::to_string(rl::GetFrameTime());
+				break;
+			default:
+				break;
+			}
+			return;
+		}
+
+		void RenderAllLayers()
+		{
+			std::vector<Types::Layer> Windows;
+
+			for (auto& i : data::Layers)
+			{
+				Windows.push_back(i);
+			}
+
+			std::sort(Windows.begin(), Windows.end(),
+				[](const Types::Layer& a, const Types::Layer& b)
+				{
+					return a.priority < b.priority;
+				});
+
+			for (auto& i : data::Layers)
+			{
+				if (i.priority == ::Types::LayerInts::AWAITING_WIPE)
+				{
+					continue;
+				}
+
+				for (auto& j : i.objects)
+				{
+					if (j.type == Types::_Button)
 					{
-						it = data::Layers.erase(it);
+						Types::Button& btn = j.btn;
+
+						rl::Rectangle getsize = GetButtonSize(btn);
+
+						getsize.width = clamp(getsize.width, (int)btn.MinMax.x, (int)btn.MinMax.width);
+						getsize.height = clamp(getsize.height, (int)btn.MinMax.y, (int)btn.MinMax.height);
+
+						rl::Vector2 text = MeasureTextEx(btn.font, btn.text.c_str(), btn.fontsize, 0.2f);
+
+						rl::Color bgColor = btn.hovering ? btn.Onhover : btn.Def;
+						rl::DrawRectanglePro({ btn.position.x, btn.position.y, getsize.width, getsize.height }, { 0,0 }, 0, bgColor);
+
+						rl::Vector2 textPos = btn.position;
+
+						switch (btn.pivot)
+						{
+						case Types::PIVOT::TopLeft:
+							break;
+						case Types::PIVOT::TopMiddle:
+							textPos.x += (getsize.width - text.x) / 2;
+							break;
+						case Types::PIVOT::TopRight:
+							textPos.x += getsize.width - text.x;
+							break;
+						case Types::PIVOT::MiddleLeft:
+							textPos.y += (getsize.height - text.y) / 2;
+							break;
+						case Types::PIVOT::Middle:
+							textPos.x += (getsize.width - text.x) / 2;
+							textPos.y += (getsize.height - text.y) / 2;
+							break;
+						case Types::PIVOT::MiddleRight:
+							textPos.x += getsize.width - text.x;
+							textPos.y += (getsize.height - text.y) / 2;
+							break;
+						case Types::PIVOT::BottomLeft:
+							textPos.y += getsize.height - text.y;
+							break;
+						case Types::PIVOT::BottomMiddle:
+							textPos.x += (getsize.width - text.x) / 2;
+							textPos.y += getsize.height - text.y;
+							break;
+						case Types::PIVOT::BottomRight:
+							textPos.x += getsize.width - text.x;
+							textPos.y += getsize.height - text.y;
+							break;
+						}
+
+						rl::DrawTextPro(btn.font, btn.text.c_str(), textPos, { 0,0 }, 0, btn.fontsize, 0.2f, rl::WHITE);
+					}
+					else if (j.type == Types::_Label)
+					{
+						Types::Label& lbl = j.lbl;
+
+						rl::Vector2 textSize = MeasureTextEx(lbl.font, lbl.text.c_str(), lbl.fontsize, 0.2f);
+						rl::Vector2 pos = lbl.position;
+
+						switch (lbl.pivot)
+						{
+						case Types::PIVOT::TopLeft:
+							break;
+
+						case Types::PIVOT::TopMiddle:
+							pos.x -= textSize.x / 2;
+							break;
+
+						case Types::PIVOT::TopRight:
+							pos.x -= textSize.x;
+							break;
+
+						case Types::PIVOT::MiddleLeft:
+							pos.y -= textSize.y / 2;
+							break;
+
+						case Types::PIVOT::Middle:
+							pos.x -= textSize.x / 2;
+							pos.y -= textSize.y / 2;
+							break;
+
+						case Types::PIVOT::MiddleRight:
+							pos.x -= textSize.x;
+							pos.y -= textSize.y / 2;
+							break;
+
+						case Types::PIVOT::BottomLeft:
+							pos.y -= textSize.y;
+							break;
+
+						case Types::PIVOT::BottomMiddle:
+							pos.x -= textSize.x / 2;
+							pos.y -= textSize.y;
+							break;
+
+						case Types::PIVOT::BottomRight:
+							pos.x -= textSize.x;
+							pos.y -= textSize.y;
+							break;
+						}
+
+						rl::DrawTextPro(lbl.font, lbl.text.c_str(), pos, { 0,0 }, 0, lbl.fontsize, 0.2f, lbl.Def);
+					}
+					else if (j.type == Types::_Window)
+					{
+						if (!j.win) continue;
+
+						Types::Window& win = *j.win;
+						rl::Rectangle rect = win.rect;
+
+						rl::DrawRectangleRec(rect, win.bgcolor);
+
+						rl::DrawRectangleRec({ rect.x,rect.y,rect.width,17 + 4 }, { win.bgcolor.r,win.bgcolor.g,win.bgcolor.b,128 });
+
+						rl::DrawTextPro(
+							rl::GetFontDefault(),
+							win.title.c_str(),
+							{ rect.x + 4, rect.y + 4 },
+							{ 0,0 },
+							0,
+							16,
+							0,
+							rl::BLACK
+						);
+
+						for (size_t i = 0; i != win.elements.size(); i++)
+						{
+							switch (win.elements[i].type)
+							{
+							case Types::_Button:
+								j.btn.position.x = j.btn.position.x + rect.x;
+								j.btn.position.y = j.btn.position.y + rect.y;
+								break;
+							case Types::_Window:
+								assert("not implemented");
+								break;
+							case Types::_Label:
+								j.lbl.position.x = j.lbl.position.x + rect.x;
+								j.lbl.position.y = j.lbl.position.y + rect.y;
+								break;
+							default:
+								break;
+							}
+						}
+						if (j.win->callback) //drag
+						{
+							j.win->callback(&i);
+						}
+					}
+					else if (j.type == Types::_Toggle)
+					{
+						continue; //stub
+					}
+					else if (j.type == Types::_InputLabel)
+					{
+						continue; //stub
+					}
+				}
+			}
+
+			Utils::WipeAwait();
+
+			return;
+		}
+
+		void DoInput()
+		{
+			if (rl::IsKeyPressed(rl::KEY_F11))
+			{
+				rl::ToggleFullscreen();
+			}
+			return;
+		}
+
+		void DoButtonCallBacks()
+		{
+			std::vector<Types::Layer> Windows;
+
+			for (Types::Layer i : data::Layers)
+			{
+				Windows.push_back(i);
+			}
+
+			std::sort(Windows.begin(), Windows.end(),
+				[](const Types::Layer& a, const Types::Layer& b)
+				{
+					return a.priority < b.priority;
+				});
+
+			for (Types::Layer& i : data::Layers)
+			{
+				auto& objs = i.objects;
+
+				for (auto it = objs.begin(); it != objs.end();)
+				{
+					auto& j = *it;
+
+					if (j.type == Types::_Button)
+					{
+						if (j.btn.disabled)
+						{
+							it = objs.erase(it);
+							continue;
+						}
+					}
+
+					if (rl::CheckCollisionRecs(GetButtonSize(j.btn), { mouse.x, mouse.y, 1, 1 }))
+					{
+						j.btn.hovering = true;
 					}
 					else
 					{
-						++it;
-					}
-				}
-				return;
-			}
-
-			void UpdateDebugValues(int arg,void* ptr)
-			{
-				switch (arg)
-				{
-				case Types::UniqueIds::MOUSE_POS_ID:
-					static_cast<Types::Label*>(ptr)->text = std::to_string(mouse.x) + " || " + std::to_string(mouse.y);
-					break;
-				case Types::UniqueIds::FPS_ID:
-					static_cast<Types::Label*>(ptr)->text = std::to_string(rl::GetFPS()) + " || " + std::to_string(rl::GetFrameTime());
-					break;
-				default:
-					break;
-				}
-				return;
-			}
-
-			void RenderAllLayers()
-			{
-				std::vector<Types::Layer> Windows;
-
-				for (auto& i : data::Layers)
-				{
-					Windows.push_back(i);
-				}
-
-				std::sort(Windows.begin(), Windows.end(),
-					[](const Types::Layer& a, const Types::Layer& b)
-					{
-						return a.priority < b.priority;
-					});
-
-				for (auto& i : data::Layers)
-				{
-					if (i.priority == ::Types::LayerInts::AWAITING_WIPE)
-					{
-						continue;
+						j.btn.hovering = false;
 					}
 
-					for (auto& j : i.objects)
+					if (j.btn.hovering)
 					{
-						if (j.type == Types::_Button)
+						if (rl::IsMouseButtonPressed(0))
 						{
-							Types::Button& btn = j.btn;
-
-							rl::Rectangle getsize = GetButtonSize(btn);
-
-							getsize.width = clamp(getsize.width, (int)btn.MinMax.x, (int)btn.MinMax.width);
-							getsize.height = clamp(getsize.height, (int)btn.MinMax.y, (int)btn.MinMax.height);
-
-							rl::Vector2 text = MeasureTextEx(btn.font, btn.text.c_str(), btn.fontsize, 0.2f);
-
-							rl::Color bgColor = btn.hovering ? btn.Onhover : btn.Def;
-							rl::DrawRectanglePro({ btn.position.x, btn.position.y, getsize.width, getsize.height }, { 0,0 }, 0, bgColor);
-
-							rl::Vector2 textPos = btn.position;
-
-							switch (btn.pivot)
+							if (j.btn.exec)
 							{
-							case Types::PIVOT::TopLeft:
-								break;
-							case Types::PIVOT::TopMiddle:
-								textPos.x += (getsize.width - text.x) / 2;
-								break;
-							case Types::PIVOT::TopRight:
-								textPos.x += getsize.width - text.x;
-								break;
-							case Types::PIVOT::MiddleLeft:
-								textPos.y += (getsize.height - text.y) / 2;
-								break;
-							case Types::PIVOT::Middle:
-								textPos.x += (getsize.width - text.x) / 2;
-								textPos.y += (getsize.height - text.y) / 2;
-								break;
-							case Types::PIVOT::MiddleRight:
-								textPos.x += getsize.width - text.x;
-								textPos.y += (getsize.height - text.y) / 2;
-								break;
-							case Types::PIVOT::BottomLeft:
-								textPos.y += getsize.height - text.y;
-								break;
-							case Types::PIVOT::BottomMiddle:
-								textPos.x += (getsize.width - text.x) / 2;
-								textPos.y += getsize.height - text.y;
-								break;
-							case Types::PIVOT::BottomRight:
-								textPos.x += getsize.width - text.x;
-								textPos.y += getsize.height - text.y;
-								break;
+								j.btn.exec();
 							}
-
-							rl::DrawTextPro(btn.font, btn.text.c_str(), textPos, { 0,0 }, 0, btn.fontsize, 0.2f, rl::WHITE);
-						}
-						else if (j.type == Types::_Label)
-						{
-							Types::Label& lbl = j.lbl;
-
-							rl::Vector2 textSize = MeasureTextEx(lbl.font, lbl.text.c_str(), lbl.fontsize, 0.2f);
-							rl::Vector2 pos = lbl.position;
-
-							switch (lbl.pivot)
+							else
 							{
-							case Types::PIVOT::TopLeft:
-								break;
-
-							case Types::PIVOT::TopMiddle:
-								pos.x -= textSize.x / 2;
-								break;
-
-							case Types::PIVOT::TopRight:
-								pos.x -= textSize.x;
-								break;
-
-							case Types::PIVOT::MiddleLeft:
-								pos.y -= textSize.y / 2;
-								break;
-
-							case Types::PIVOT::Middle:
-								pos.x -= textSize.x / 2;
-								pos.y -= textSize.y / 2;
-								break;
-
-							case Types::PIVOT::MiddleRight:
-								pos.x -= textSize.x;
-								pos.y -= textSize.y / 2;
-								break;
-
-							case Types::PIVOT::BottomLeft:
-								pos.y -= textSize.y;
-								break;
-
-							case Types::PIVOT::BottomMiddle:
-								pos.x -= textSize.x / 2;
-								pos.y -= textSize.y;
-								break;
-
-							case Types::PIVOT::BottomRight:
-								pos.x -= textSize.x;
-								pos.y -= textSize.y;
-								break;
+								::Utils::LogFatal("Error", "uninitialized pointer or memory corruption occurred");
 							}
-
-							rl::DrawTextPro(lbl.font, lbl.text.c_str(), pos, { 0,0 }, 0, lbl.fontsize, 0.2f, lbl.Def);
-						}
-						else if (j.type == Types::_Window)
-						{
-							if (!j.win) continue;
-
-							Types::Window& win = *j.win;
-							rl::Rectangle rect = win.rect;
-
-							rl::DrawRectangleRec(rect, win.bgcolor);
-
-							rl::DrawRectangleRec({ rect.x,rect.y,rect.width,17 + 4 }, { win.bgcolor.r,win.bgcolor.g,win.bgcolor.b,128});
-
-							rl::DrawTextPro(
-								rl::GetFontDefault(),
-								win.title.c_str(),
-								{ rect.x + 4, rect.y + 4 },
-								{ 0,0 },
-								0,
-								16,
-								0,
-								rl::BLACK
-							);
-
-							for (size_t i = 0; i != win.elements.size(); i++)
-							{
-								switch (win.elements[i].type)
-								{
-								case Types::_Button:
-									j.btn.position.x = j.btn.position.x + rect.x;
-									j.btn.position.y = j.btn.position.y + rect.y;
-									break;
-								case Types::_Window:
-									assert("not implemented");
-									break;
-								case Types::_Label:
-									j.lbl.position.x = j.lbl.position.x + rect.x;
-									j.lbl.position.y = j.lbl.position.y + rect.y;
-									break;
-								default:
-									break;
-								}
-							}
-							if (j.win->callback) //drag
-							{
-								j.win->callback(&i);
-							}
-						}
-						else if (j.type == Types::_Toggle)
-						{
-							continue; //stub
-						}
-						else if (j.type == Types::_InputLabel)
-						{
-							continue; //stub
 						}
 					}
+
+					++it; // only increment when not erased
 				}
-
-				Utils::WipeAwait();
-
-				return;
 			}
 
-			void DoInput()
+			return;
+		}
+
+		bool i = false;
+
+		void DoInputCallbacksOnScreen()
+		{
+			if (rl::IsMouseButtonPressed(0))
 			{
-				if (rl::IsKeyPressed(rl::KEY_F11))
-				{
-					rl::ToggleFullscreen();
-				}
-				return;
+				UI::SpawnerDrop::WipePreDrop();
+				::Utils::Log("left mouse button pressed");
 			}
 
-			void DoButtonCallBacks()
+			if (rl::IsMouseButtonPressed(1))
 			{
-				std::vector<Types::Layer> Windows;
+				mouse = GetMousePosPro();
 
-				for (Types::Layer i : data::Layers)
-				{
-					Windows.push_back(i);
-				}
+				UI::SpawnerDrop::WipeDrop();
 
-				std::sort(Windows.begin(), Windows.end(),
-					[](const Types::Layer& a, const Types::Layer& b)
-					{
-						return a.priority < b.priority;
-					});
+				Types::Layer options = {};
+				options.priority = Types::LayerInts::LAYER_POPUP_MENU;
 
-				for (Types::Layer& i : data::Layers)
-				{
-					auto& objs = i.objects;
+				Types::Button SpawnFunction = { false, UI::SpawnerDrop::SpawnFunction,"SpawnFunction",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
+				Types::Button List = { false, UI::SpawnerDrop::List,"List",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
+				Types::Button Delete = { false, UI::SpawnerDrop::Delete,"Delete",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
 
-					for (auto it = objs.begin(); it != objs.end();)
-					{
-						auto& j = *it;
+				List.position.y = SpawnFunction.position.y + Qmessure(SpawnFunction).y;
+				Delete.position.y = List.position.y + Qmessure(List).y;
 
-						if (j.type == Types::_Button)
-						{
-							if (j.btn.disabled)
-							{
-								it = objs.erase(it);
-								continue;
-							}
-						}
+				options.objects.push_back(Types::UIObject(SpawnFunction));
+				options.objects.push_back(Types::UIObject(List));
+				options.objects.push_back(Types::UIObject(Delete));
 
-						if (rl::CheckCollisionRecs(GetButtonSize(j.btn), { mouse.x, mouse.y, 1, 1 }))
-						{
-							j.btn.hovering = true;
-						}
-						else
-						{
-							j.btn.hovering = false;
-						}
+				data::Layers.push_back(options);
 
-						if (j.btn.hovering)
-						{
-							if (rl::IsMouseButtonPressed(0))
-							{
-								if (j.btn.exec)
-								{
-									j.btn.exec();
-								}
-								else
-								{
-									::Utils::LogFatal("Error", "uninitialized pointer or memory corruption occurred");
-								}
-							}
-						}
-
-						++it; // only increment when not erased
-					}
-				}
-
-				return;
+				//activate
+				::Utils::Log("right mouse button pressed");
 			}
+			return;
+		}
 
-			bool i = false;
-
-			void DoInputCallbacksOnScreen()
-			{
-				if (rl::IsMouseButtonPressed(0))
-				{
-					UI::SpawnerDrop::WipePreDrop();
-					::Utils::Log("left mouse button pressed");
-				}
-				
-				if (rl::IsMouseButtonPressed(1))
-				{
-					mouse = GetMousePosPro();
-
-					UI::SpawnerDrop::WipeDrop();
-
-					Types::Layer options = {};
-					options.priority = Types::LayerInts::LAYER_POPUP_MENU;
-
-					Types::Button SpawnFunction = { false, UI::SpawnerDrop::SpawnFunction,"SpawnFunction",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
-					Types::Button List = { false, UI::SpawnerDrop::List,"List",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
-					Types::Button Delete = { false, UI::SpawnerDrop::Delete,"Delete",false,{mouse.x,mouse.y},12 ,rl::GetFontDefault(), { 200,INT16_MIN,INT16_MAX,INT16_MAX }, Types::PIVOT::MiddleLeft, rl::DARKGRAY, rl::BLACK };
-					
-					List.position.y = SpawnFunction.position.y + Qmessure(SpawnFunction).y;
-					Delete.position.y = List.position.y + Qmessure(List).y;
-
-					options.objects.push_back(Types::UIObject(SpawnFunction));
-					options.objects.push_back(Types::UIObject(List));
-					options.objects.push_back(Types::UIObject(Delete));
-
-					data::Layers.push_back(options);
-
-					//activate
-					::Utils::Log("right mouse button pressed");
-				}
-				return;
-			}
-
-			void DoInputCallbacksCamera()
-			{
-				return;
-			}
+		void DoInputCallbacksCamera()
+		{
+			return;
+		}
 	}
 
 	void debug()

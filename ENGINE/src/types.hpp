@@ -106,7 +106,7 @@ namespace Types
         UIObjectType type = None;
         Button btn{};
         Label lbl{};
-        std::unique_ptr<Types::Window> win;
+        Window* win;
         InputLabel ilb{};
         Toggle tog{};
 
@@ -120,9 +120,7 @@ namespace Types
         UIObject(const Label& b) : type(_Label), lbl(b) {}
         UIObject(Label&& b) noexcept : type(_Label), lbl(std::move(b)) {}
 
-        UIObject(std::unique_ptr<Types::Window> w)
-            : type(_Window), win(std::move(w)) {
-        }
+        UIObject(Window* w) : type(_Window), win(w) {}
 
         UIObject(const InputLabel& b) : type(_InputLabel), ilb(b) {}
         UIObject(InputLabel&& b) noexcept : type(_InputLabel), ilb(std::move(b)) {}
@@ -135,7 +133,6 @@ namespace Types
         UIObject(UIObject&&) noexcept = default;
         UIObject& operator=(UIObject&&) noexcept = default;
     };
-
 
     enum class ValueType {
         INT, INT64, DOUBLE, FLOAT, CHAR, UNSIGNED_CHAR, PTR, STRING, NONE
