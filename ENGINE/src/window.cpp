@@ -478,6 +478,14 @@ namespace Window
 								j.win->callback(&i);
 							}
 						}
+						else if (j.type == Types::_Toggle)
+						{
+							continue; //stub
+						}
+						else if (j.type == Types::_InputLabel)
+						{
+							continue; //stub
+						}
 					}
 				}
 

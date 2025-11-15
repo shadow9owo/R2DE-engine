@@ -29,6 +29,12 @@ namespace Types
         constexpr int SPAWN_WINDOW_ID = 3;
         constexpr int LIST_WINDOW_ID = 4;
     }
+    
+    struct Texture
+    {
+        rl::Texture texture;
+        rl::Rectangle rect;
+    };
 
     enum class PIVOT {
         TopLeft, TopMiddle, TopRight,
@@ -66,12 +72,31 @@ namespace Types
         int uniqueid = -1;
     };
 
+    struct Toggle
+    {
+        rl::Rectangle rect;
+        bool toggled = false;
+        Texture toggletexture = {};
+        void (*callback)(void*) = nullptr; //on press
+    };
+
+    struct InputLabel
+    {
+        rl::Rectangle rect;
+        std::string Label = {};
+        rl::Color bgcolor = { 192,192,192,255 };
+        bool focused = false;
+        void (*callback)(void*) = nullptr; //on char pressed
+    };
+
     enum UIObjectType
     {
         None,
         _Button,
         _Window,
-        _Label
+        _Label,
+        _InputLabel,
+        _Toggle
     };
 
     struct Window;
@@ -82,6 +107,8 @@ namespace Types
         Button btn{};
         Label lbl{};
         Window* win = nullptr;
+        InputLabel ilb{};
+        Toggle tog{};
 
         int windowIndex = 0;
 
@@ -94,6 +121,12 @@ namespace Types
         UIObject(Label&& b) noexcept : type(_Label), lbl(std::move(b)) {}
 
         UIObject(Window* w) : type(_Window), win(w) {}
+
+        UIObject(const InputLabel& b) : type(_InputLabel), ilb(b) {}
+        UIObject(InputLabel&& b) noexcept : type(_InputLabel), ilb(std::move(b)) {}
+
+        UIObject(const Toggle& b) : type(_Toggle), tog(b) {}
+        UIObject(Toggle&& b) noexcept : type(_Toggle), tog(std::move(b)) {}
 
         UIObject(const UIObject&) = default;
         UIObject& operator=(const UIObject&) = default;
