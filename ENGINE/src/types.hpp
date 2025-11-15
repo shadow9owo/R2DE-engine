@@ -24,15 +24,18 @@ namespace Types
 
     namespace UniqueIds
     {
+        constexpr int NONE = -1;
         constexpr int MOUSE_POS_ID = 1;
         constexpr int FPS_ID = 2;
         constexpr int SPAWN_WINDOW_ID = 3;
         constexpr int LIST_WINDOW_ID = 4;
+        constexpr int SETTINGS_WINDOW_ID = 5;
+        constexpr int VSYNC_TOGGLE = 6;
     }
     
     struct Texture
     {
-        rl::Texture texture;
+        rl::Texture2D texture;
         rl::Rectangle rect;
     };
 
@@ -76,8 +79,10 @@ namespace Types
     {
         rl::Rectangle rect;
         bool toggled = false;
-        Texture toggletexture = {};
-        void (*callback)(void*) = nullptr; //on press
+        rl::Texture2D toggletexture = {};
+        Label text;
+        void (*callback)(Types::Toggle*) = nullptr; //on press
+        int uniqueid = -1;
     };
 
     struct InputLabel
@@ -86,7 +91,7 @@ namespace Types
         std::string Label = {};
         rl::Color bgcolor = { 192,192,192,255 };
         bool focused = false;
-        void (*callback)(void*) = nullptr; //on char pressed
+        void (*callback)() = nullptr; //on char pressed
     };
 
     enum UIObjectType

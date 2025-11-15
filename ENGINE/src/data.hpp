@@ -23,5 +23,6 @@ namespace data
 		extern bool vsync;
 
 		extern void parseini();
+		extern void updateini();
 	}
 }

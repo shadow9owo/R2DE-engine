@@ -51,5 +51,30 @@ namespace data
 				vsync = (bool)std::atoi(buffer.c_str());
 			}
 		}
+
+		void updateini()
+		{
+			std::string buffer;
+
+			DG2D::INI::filename = "config.ini";
+
+			buffer = std::to_string(framerate);
+			DG2D::INI::setvalue("framerate", buffer.c_str());
+
+			rl::SetTargetFPS(framerate);
+
+			buffer = std::to_string((int)vsync);
+			DG2D::INI::setvalue("vsync", buffer.c_str());
+
+			if (vsync)
+			{
+				rl::SetWindowState(rl::FLAG_VSYNC_HINT);
+			}
+			else {
+				rl::ClearWindowState(rl::FLAG_VSYNC_HINT);
+			}
+
+			return;
+		}
 	}
 }

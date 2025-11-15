@@ -45,7 +45,7 @@ int main()
 
     rl::SetExitKey(rl::KEY_RIGHT_CONTROL);
 
-    rl::SetTargetFPS(data::config::framerate);
+    rl::SetTargetFPS(data::config::framerate);  
 
 	Window::DoInit();
 
