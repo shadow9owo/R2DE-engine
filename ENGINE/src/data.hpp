@@ -18,6 +18,7 @@ namespace data
 	namespace config
 	{
 		extern int framerate;
+		extern bool vsync;
 
 		extern void parseini();
 	}

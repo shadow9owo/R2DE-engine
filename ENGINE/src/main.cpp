@@ -19,7 +19,15 @@ rl::Camera2D camera;
 
 int main()
 {
-    rl::SetConfigFlags(rl::FLAG_VSYNC_HINT | rl::FLAG_WINDOW_HIGHDPI | rl::FLAG_WINDOW_RESIZABLE);
+    data::config::parseini();
+
+    if (data::config::vsync)
+    {
+        rl::SetConfigFlags(rl::FLAG_VSYNC_HINT | rl::FLAG_WINDOW_HIGHDPI | rl::FLAG_WINDOW_RESIZABLE);
+    }
+    else {
+        rl::SetConfigFlags(rl::FLAG_WINDOW_HIGHDPI | rl::FLAG_WINDOW_RESIZABLE);
+    }
 
     rl::InitWindow((int)BaseTexture.x, (int)BaseTexture.y, "GAME");
 
@@ -36,8 +44,6 @@ int main()
     rl::SetTextureFilter(text.texture, rl::TEXTURE_FILTER_POINT);
 
     rl::SetExitKey(rl::KEY_RIGHT_CONTROL);
-
-    data::config::parseini();
 
     rl::SetTargetFPS(data::config::framerate);
 

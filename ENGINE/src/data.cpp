@@ -24,6 +24,7 @@ namespace data
 	namespace config
 	{
 		int framerate = 24;
+		bool vsync = true;
 
 		void parseini()
 		{
@@ -37,6 +38,15 @@ namespace data
 			}
 			else {
 				framerate = std::atoi(buffer.c_str());
+			}
+			
+			if (!DG2D::INI::getvalue("vsync", buffer))
+			{
+				vsync = (bool)1;
+				DG2D::INI::setvalue("vsync", "1");
+			}
+			else {
+				vsync = (bool)std::atoi(buffer.c_str());
 			}
 		}
 	}
