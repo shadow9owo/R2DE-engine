@@ -11,6 +11,7 @@ namespace rl
 #include "window.hpp"
 #include "main.hpp"
 
+#include "data.hpp"
 #include "utils.hpp"
 
 rl::RenderTexture2D text;
@@ -36,7 +37,9 @@ int main()
 
     rl::SetExitKey(rl::KEY_RIGHT_CONTROL);
 
-    rl::SetTargetFPS(24);
+    data::config::parseini();
+
+    rl::SetTargetFPS(data::config::framerate);
 
 	Window::DoInit();
 

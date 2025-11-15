@@ -14,4 +14,11 @@ namespace data
 	extern std::vector<Types::Layer> Layers;
 
 	extern bool wipedrop;
+	
+	namespace config
+	{
+		extern int framerate;
+
+		extern void parseini();
+	}
 }
