@@ -187,17 +187,20 @@ namespace Window
 				WindowLayer.priority = ::Types::LayerInts::LAYER_WINDOW_DEFAULT;
 				WindowLayer.objects = {};
 
-				Types::Window* win = new Types::Window{
-					false,
-					"Spawn UI",
-					{200, 200, 200, 200},
-					{},
-					Types::UniqueIds::SPAWN_WINDOW_ID,
-					rl::GRAY,
-					&Utils::WindowTick
-				};
+				auto win = std::make_unique<Types::Window>(
+					Types::Window
+					{
+						false,
+						"Spawn UI",
+						{200, 200, 200, 200},
+						{},
+						Types::UniqueIds::SPAWN_WINDOW_ID,
+						rl::GRAY,
+						&Utils::WindowTick
+					}
+				);
 
-				WindowLayer.objects.emplace_back(Types::UIObject(win));
+				WindowLayer.objects.emplace_back(std::move(win));
 
 				::data::Layers.push_back(WindowLayer);
 
@@ -229,17 +232,21 @@ namespace Window
 				WindowLayer.priority = ::Types::LayerInts::LAYER_WINDOW_DEFAULT;
 				WindowLayer.objects = {};
 
-				Types::Window* win = new Types::Window{
-					false,
-					"List UI",
-					{200, 200, 200, 200},
-					{},
-					Types::UniqueIds::LIST_WINDOW_ID,
-					rl::GRAY,
-					&Utils::WindowTick
-				};
 
-				WindowLayer.objects.emplace_back(Types::UIObject(win));
+				auto win = std::make_unique<Types::Window>(
+					Types::Window
+					{
+						false,
+						"List UI",
+						{200, 200, 200, 200},
+						{},
+						Types::UniqueIds::LIST_WINDOW_ID,
+						rl::GRAY,
+						&Utils::WindowTick
+					}
+				);
+
+				WindowLayer.objects.emplace_back(std::move(win));
 
 				::data::Layers.push_back(WindowLayer);
 
