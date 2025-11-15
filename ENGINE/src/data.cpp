@@ -21,6 +21,8 @@ namespace data
 
 	bool wipedrop = false;
 
+	bool dragging = false;
+
 	namespace config
 	{
 		int framerate = 24;

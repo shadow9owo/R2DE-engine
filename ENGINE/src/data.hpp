@@ -14,6 +14,8 @@ namespace data
 	extern std::vector<Types::Layer> Layers;
 
 	extern bool wipedrop;
+
+	extern bool dragging;
 	
 	namespace config
 	{

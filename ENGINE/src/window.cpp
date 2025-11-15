@@ -56,13 +56,23 @@ namespace Window
 
 					if (a.type == Types::_Window)
 					{
-						if (rl::CheckCollisionRecs({ a.win->rect.x,a.win->rect.y,a.win->rect.width,TITLEBARHEIGHT }, { mouse.x,mouse.y,4,4 }))
+						if (rl::IsMouseButtonDown(0))
 						{
-							if (rl::IsMouseButtonDown(0))
+							if (rl::CheckCollisionRecs({ a.win->rect.x,a.win->rect.y,a.win->rect.width,TITLEBARHEIGHT }, { mouse.x,mouse.y,4,4 }))
 							{
 								a.win->rect.x = mouse.x - (a.win->rect.width / 2);
-								a.win->rect.y = mouse.y - (TITLEBARHEIGHT / 2); // titlebar height
+								a.win->rect.y = mouse.y - (TITLEBARHEIGHT / 2);
+								data::dragging = true;
 							}
+							else if (data::dragging == true)
+							{
+								a.win->rect.x = mouse.x - (a.win->rect.width / 2);
+								a.win->rect.y = mouse.y - (TITLEBARHEIGHT / 2);
+							}
+						}
+						else {
+							data::dragging = false;
+							return;
 						}
 					}
 				}
