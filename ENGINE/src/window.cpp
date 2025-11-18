@@ -470,9 +470,16 @@ namespace Window
 				FpsInput.rect.height * 0.5f
 			};
 
+			Types::Label fps;
+			fps.text = "Fps limiter";
+			fps.fontsize = 12;
+			fps.position = { TITLEBARHEIGHT + 2, 80 };
+			fps.pivot = Types::PIVOT::TopLeft;
+
 			FpsInput.value = std::to_string(::data::config::framerate);
 
 			win->elements.push_back(Types::UIObject(Vsync));
+			win->elements.push_back(Types::UIObject(fps));
 			win->elements.push_back(Types::UIObject(FpsInput));
 
 			WindowLayer.objects.emplace_back(Types::UIObject(win));
