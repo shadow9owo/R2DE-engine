@@ -25,6 +25,7 @@ namespace rl
 #include <iostream>
 
 #include "Utils/textures/Textures.hpp"
+#include <regex>
 
 namespace Window
 {
@@ -53,36 +54,51 @@ namespace Window
 				switch (btn.pivot)
 				{
 				case Types::PIVOT::TopLeft:
+					textPos.x -= getsize.width * 0.5f;
+					textPos.y -= getsize.height * 0.5f;
 					break;
+
 				case Types::PIVOT::TopMiddle:
-					textPos.x += (getsize.width - text.x) / 2;
+					textPos.x -= text.x * 0.5f;
+					textPos.y -= getsize.height * 0.5f;
 					break;
+
 				case Types::PIVOT::TopRight:
-					textPos.x += getsize.width - text.x;
+					textPos.x -= (getsize.width - text.x);
+					textPos.y -= getsize.height * 0.5f;
 					break;
+
 				case Types::PIVOT::MiddleLeft:
-					textPos.y += (getsize.height - text.y) / 2;
+					textPos.x -= getsize.width * 0.5f;
+					textPos.y -= text.y * 0.5f;
 					break;
+
 				case Types::PIVOT::Middle:
-					textPos.x += (getsize.width - text.x) / 2;
-					textPos.y += (getsize.height - text.y) / 2;
+					textPos.x -= text.x * 0.5f;
+					textPos.y -= text.y * 0.5f;
 					break;
+
 				case Types::PIVOT::MiddleRight:
-					textPos.x += getsize.width - text.x;
-					textPos.y += (getsize.height - text.y) / 2;
+					textPos.x -= (getsize.width - text.x);
+					textPos.y -= text.y * 0.5f;
 					break;
+
 				case Types::PIVOT::BottomLeft:
-					textPos.y += getsize.height - text.y;
+					textPos.x -= getsize.width * 0.5f;
+					textPos.y -= (getsize.height - text.y);
 					break;
+
 				case Types::PIVOT::BottomMiddle:
-					textPos.x += (getsize.width - text.x) / 2;
-					textPos.y += getsize.height - text.y;
+					textPos.x -= text.x * 0.5f;
+					textPos.y -= (getsize.height - text.y);
 					break;
+
 				case Types::PIVOT::BottomRight:
-					textPos.x += getsize.width - text.x;
-					textPos.y += getsize.height - text.y;
+					textPos.x -= (getsize.width - text.x);
+					textPos.y -= (getsize.height - text.y);
 					break;
 				}
+
 
 				rl::DrawTextPro(btn.font, btn.text.c_str(), textPos, { 0,0 }, 0, btn.fontsize, 0.2f, rl::WHITE);
 			}
@@ -96,10 +112,11 @@ namespace Window
 				switch (lbl.pivot)
 				{
 				case Types::PIVOT::TopLeft:
+					// pos stays as-is
 					break;
 
 				case Types::PIVOT::TopMiddle:
-					pos.x -= textSize.x / 2;
+					pos.x -= textSize.x * 0.5f;
 					break;
 
 				case Types::PIVOT::TopRight:
@@ -107,17 +124,17 @@ namespace Window
 					break;
 
 				case Types::PIVOT::MiddleLeft:
-					pos.y -= textSize.y / 2;
+					pos.y -= textSize.y * 0.5f;
 					break;
 
 				case Types::PIVOT::Middle:
-					pos.x -= textSize.x / 2;
-					pos.y -= textSize.y / 2;
+					pos.x -= textSize.x * 0.5f;
+					pos.y -= textSize.y * 0.5f;
 					break;
 
 				case Types::PIVOT::MiddleRight:
 					pos.x -= textSize.x;
-					pos.y -= textSize.y / 2;
+					pos.y -= textSize.y * 0.5f;
 					break;
 
 				case Types::PIVOT::BottomLeft:
@@ -125,7 +142,7 @@ namespace Window
 					break;
 
 				case Types::PIVOT::BottomMiddle:
-					pos.x -= textSize.x / 2;
+					pos.x -= textSize.x * 0.5f;
 					pos.y -= textSize.y;
 					break;
 
@@ -158,10 +175,11 @@ namespace Window
 				switch (lbl.pivot)
 				{
 				case Types::PIVOT::TopLeft:
+					// pos stays as-is
 					break;
 
 				case Types::PIVOT::TopMiddle:
-					pos.x -= textSize.x / 2;
+					pos.x -= textSize.x * 0.5f;
 					break;
 
 				case Types::PIVOT::TopRight:
@@ -169,17 +187,17 @@ namespace Window
 					break;
 
 				case Types::PIVOT::MiddleLeft:
-					pos.y -= textSize.y / 2;
+					pos.y -= textSize.y * 0.5f;
 					break;
 
 				case Types::PIVOT::Middle:
-					pos.x -= textSize.x / 2;
-					pos.y -= textSize.y / 2;
+					pos.x -= textSize.x * 0.5f;
+					pos.y -= textSize.y * 0.5f;
 					break;
 
 				case Types::PIVOT::MiddleRight:
 					pos.x -= textSize.x;
-					pos.y -= textSize.y / 2;
+					pos.y -= textSize.y * 0.5f;
 					break;
 
 				case Types::PIVOT::BottomLeft:
@@ -187,7 +205,7 @@ namespace Window
 					break;
 
 				case Types::PIVOT::BottomMiddle:
-					pos.x -= textSize.x / 2;
+					pos.x -= textSize.x * 0.5f;
 					pos.y -= textSize.y;
 					break;
 
@@ -198,6 +216,79 @@ namespace Window
 				}
 
 				rl::DrawTextPro(lbl.font, lbl.text.c_str(), pos, { 0,0 }, 0, lbl.fontsize, 0.2f, lbl.Def);
+			}
+			else if (_Object.type == Types::_InputLabel)
+			{
+				auto& ilb = _Object.ilb;
+
+				rl::DrawRectangleRec(ilb.rect, ilb.bgcolor);
+
+				Types::Label& lbl = ilb.Label;
+
+				const char* drawText = nullptr;
+
+				if (ilb.value.empty())
+				{
+					drawText = "Input a value.";
+					ilb.scrolloffset = 0;
+				}
+				else
+				{
+					if (ilb.scrolloffset > (int)ilb.value.size())
+						ilb.scrolloffset = 0;
+
+					drawText = ilb.value.c_str() + ilb.scrolloffset;
+				}
+
+				rl::Vector2 textSize = MeasureTextEx(lbl.font, drawText, lbl.fontsize, 0.2f);
+				rl::Vector2 pos = {
+					ilb.rect.x + lbl.position.x,
+					ilb.rect.y + lbl.position.y
+				};
+
+				switch (lbl.pivot)
+				{
+				case Types::PIVOT::TopLeft:
+					break;
+
+				case Types::PIVOT::TopMiddle:
+					pos.x -= textSize.x * 0.5f;
+					break;
+
+				case Types::PIVOT::TopRight:
+					pos.x -= textSize.x;
+					break;
+
+				case Types::PIVOT::MiddleLeft:
+					pos.y -= textSize.y * 0.5f;
+					break;
+
+				case Types::PIVOT::Middle:
+					pos.x -= textSize.x * 0.5f;
+					pos.y -= textSize.y * 0.5f;
+					break;
+
+				case Types::PIVOT::MiddleRight:
+					pos.x -= textSize.x;
+					pos.y -= textSize.y * 0.5f;
+					break;
+
+				case Types::PIVOT::BottomLeft:
+					pos.y -= textSize.y;
+					break;
+
+				case Types::PIVOT::BottomMiddle:
+					pos.x -= textSize.x * 0.5f;
+					pos.y -= textSize.y;
+					break;
+
+				case Types::PIVOT::BottomRight:
+					pos.x -= textSize.x;
+					pos.y -= textSize.y;
+					break;
+				}
+
+				rl::DrawTextPro(lbl.font, drawText, pos, { 0,0 }, 0, lbl.fontsize, 0.2f, lbl.Def);
 			}
 			return;
 		}
@@ -354,18 +445,35 @@ namespace Window
 			Types::Label text;
 			text.text = "Vsync toggle";
 			text.fontsize = 12;
-			text.position = { CHECKMARKHEIGHT,CHECKMARKHEIGHT / 2 };
+			text.position = { CHECKMARKHEIGHT, CHECKMARKHEIGHT / 2 };
 			text.pivot = Types::PIVOT::TopLeft;
 
 			Types::Toggle Vsync;
 			Vsync.uniqueid = Types::UniqueIds::VSYNC_TOGGLE;
 			Vsync.callback = &ToggleClicked;
 			Vsync.toggletexture = Textures::Checkmark();
-			Vsync.rect = { TITLEBARHEIGHT + 2,TITLEBARHEIGHT + 2,CHECKMARKHEIGHT,CHECKMARKHEIGHT };
+			Vsync.rect = { TITLEBARHEIGHT + 2, TITLEBARHEIGHT + 2, CHECKMARKHEIGHT, CHECKMARKHEIGHT };
 			Vsync.text = text;
 			Vsync.toggled = data::config::vsync;
 
+			Types::InputLabel FpsInput;
+
+			FpsInput.rect = { TITLEBARHEIGHT + 2, 100, 150, 24 };
+			FpsInput.regex = R"(^\d+$)";
+			FpsInput.uniqueid = Types::UniqueIds::FRAMERATE_INPUT;
+			FpsInput.callback = &callbacks::DoLabelFieldCallBacks;
+
+			FpsInput.Label.fontsize = 12;
+			FpsInput.Label.pivot = Types::PIVOT::Middle;
+			FpsInput.Label.position = {
+				FpsInput.rect.width * 0.5f,
+				FpsInput.rect.height * 0.5f
+			};
+
+			FpsInput.value = std::to_string(::data::config::framerate);
+
 			win->elements.push_back(Types::UIObject(Vsync));
+			win->elements.push_back(Types::UIObject(FpsInput));
 
 			WindowLayer.objects.emplace_back(Types::UIObject(win));
 
@@ -759,17 +867,17 @@ namespace Window
 
 						if (tog.toggled)
 						{
-							rl::DrawTexturePro(tog.toggletexture, { 0,0,(float)tog.toggletexture.width,(float)tog.toggletexture.height }, tog.rect, { 0,0 }, 0, {255,255,255,255});
+							rl::DrawTexturePro(tog.toggletexture, { 0,0,(float)tog.toggletexture.width,(float)tog.toggletexture.height }, tog.rect, { 0,0 }, 0, { 255,255,255,255 });
 						}
 						else
 						{
-							rl::DrawTexturePro(tog.toggletexture, { 0,0,(float)tog.toggletexture.width,(float)tog.toggletexture.height}, tog.rect, {0,0}, 0, {64,64,64,255});
+							rl::DrawTexturePro(tog.toggletexture, { 0,0,(float)tog.toggletexture.width,(float)tog.toggletexture.height }, tog.rect, { 0,0 }, 0, { 64,64,64,255 });
 						}
 
 						Types::Label& lbl = tog.text;
 
 						rl::Vector2 textSize = MeasureTextEx(lbl.font, lbl.text.c_str(), lbl.fontsize, 0.2f);
-						rl::Vector2 pos = { lbl.position.x + tog.rect.x,lbl.position.y + tog.rect.y};
+						rl::Vector2 pos = { lbl.position.x + tog.rect.x,lbl.position.y + tog.rect.y };
 
 						switch (lbl.pivot)
 						{
@@ -817,7 +925,69 @@ namespace Window
 					}
 					else if (j.type == Types::_InputLabel)
 					{
-						continue; //stub
+						auto& ilb = j.ilb;
+
+						rl::DrawRectangleRec(ilb.rect, ilb.bgcolor);
+
+						Types::Label& lbl = j.ilb.Label;
+
+						const char* drawText = nullptr;
+
+						if (ilb.value.empty())
+						{
+							drawText = "Input a value.";
+						}
+						else
+						{
+							drawText = ilb.value.c_str();
+						}
+
+						rl::Vector2 textSize = MeasureTextEx(lbl.font, drawText, lbl.fontsize, 0.2f);
+						rl::Vector2 pos = lbl.position;
+
+						switch (lbl.pivot)
+						{
+						case Types::PIVOT::TopLeft:
+							break;
+
+						case Types::PIVOT::TopMiddle:
+							pos.x -= textSize.x / 2;
+							break;
+
+						case Types::PIVOT::TopRight:
+							pos.x -= textSize.x;
+							break;
+
+						case Types::PIVOT::MiddleLeft:
+							pos.y -= textSize.y / 2;
+							break;
+
+						case Types::PIVOT::Middle:
+							pos.x -= textSize.x / 2;
+							pos.y -= textSize.y / 2;
+							break;
+
+						case Types::PIVOT::MiddleRight:
+							pos.x -= textSize.x;
+							pos.y -= textSize.y / 2;
+							break;
+
+						case Types::PIVOT::BottomLeft:
+							pos.y -= textSize.y;
+							break;
+
+						case Types::PIVOT::BottomMiddle:
+							pos.x -= textSize.x / 2;
+							pos.y -= textSize.y;
+							break;
+
+						case Types::PIVOT::BottomRight:
+							pos.x -= textSize.x;
+							pos.y -= textSize.y;
+							break;
+						}
+
+						rl::DrawTextPro(ilb.Label.font, drawText, pos, { 0,0 }, 0, ilb.Label.fontsize, 0.2f, ilb.Label.Def);
 					}
 				}
 			}
@@ -897,6 +1067,170 @@ namespace Window
 					}
 
 					++it; // only increment when not erased
+				}
+			}
+
+			return;
+		}
+
+		void DoLabelFieldCallBacks()
+		{
+			std::vector<Types::Layer> Windows;
+
+			for (Types::Layer& i : data::Layers)
+			{
+				Windows.push_back(i);
+			}
+
+			std::sort(Windows.begin(), Windows.end(),
+				[](const Types::Layer& a, const Types::Layer& b)
+				{
+					return a.priority < b.priority;
+				});
+
+			for (Types::Layer& i : data::Layers)
+			{
+				auto& objs = i.objects;
+
+				for (auto it = objs.begin(); it != objs.end();)
+				{
+					auto& j = *it;
+
+					if (j.type == Types::_InputLabel)
+					{
+						rl::Rectangle fieldRect = j.ilb.rect;
+
+						if (rl::IsMouseButtonPressed(0))
+						{
+							if (rl::CheckCollisionRecs(fieldRect, { mouse.x, mouse.y, 1, 1 }))
+							{
+								j.ilb.focused = true;
+							}
+							else
+							{
+								j.ilb.focused = false;
+							}
+						}
+
+						if (j.ilb.focused)
+						{
+							int key = 0;
+							while ((key = rl::GetCharPressed()) != 0)
+							{
+								if (key >= 32 && key <= 126)
+								{
+									std::string next = j.ilb.value + (char)key;
+
+									if (std::regex_match(next, std::regex(j.ilb.regex)))
+									{
+										j.ilb.value.push_back((char)key);
+									}
+								}
+							}
+
+							if (rl::IsKeyPressed(rl::KEY_BACKSPACE) && !j.ilb.value.empty())
+							{
+								j.ilb.value.pop_back();
+							}
+						}
+
+					}
+					else if (j.type == Types::_Window && j.win)
+					{
+						for (Types::UIObject& a : j.win->elements)
+						{
+							if (a.type != Types::_InputLabel)
+							{
+								continue;
+							}
+
+							rl::Rectangle fieldRect =
+							{
+								a.ilb.rect.x + j.win->rect.x,
+								a.ilb.rect.y + j.win->rect.y,
+								a.ilb.rect.width,
+								a.ilb.rect.height
+							};
+
+							if (rl::IsMouseButtonPressed(0))
+							{
+								if (rl::CheckCollisionRecs(fieldRect, { mouse.x, mouse.y, 1, 1 }))
+								{
+									a.ilb.focused = true;
+								}
+								else
+								{
+									a.ilb.focused = false;
+								}
+							}
+
+							if (a.ilb.focused)
+							{
+								int key = 0;
+								while ((key = rl::GetCharPressed()) != 0)
+								{
+									if (key >= 32 && key <= 126)
+									{
+										std::string next = a.ilb.value + (char)key;
+
+										try
+										{
+											if (std::regex_match(next, std::regex(a.ilb.regex)))
+											{
+												a.ilb.value.push_back((char)key);
+
+												rl::Vector2 fullSize = MeasureTextEx(
+													a.ilb.Label.font,
+													a.ilb.value.c_str(),
+													a.ilb.Label.fontsize,
+													0.2f
+												);
+
+												while (fullSize.x > (a.ilb.rect.width - 4))
+												{
+													a.ilb.scrolloffset++;
+													fullSize = MeasureTextEx(
+														a.ilb.Label.font,
+														a.ilb.value.c_str() + a.ilb.scrolloffset,
+														a.ilb.Label.fontsize,
+														0.2f
+													);
+												}
+											}
+
+										}
+										catch (...)
+										{
+											a.ilb.value.push_back((char)key);
+										}
+									}
+								}
+
+								if (rl::IsKeyPressed(rl::KEY_BACKSPACE) && !a.ilb.value.empty())
+								{
+									a.ilb.value.pop_back();
+
+									if (a.ilb.scrolloffset > 0)
+										a.ilb.scrolloffset--;
+								}
+							}
+
+							if (a.ilb.uniqueid == Types::UniqueIds::FRAMERATE_INPUT)
+							{
+								if (!a.ilb.value.empty())
+								{
+									int val = std::stoi(a.ilb.value);
+									if (val != data::config::framerate)
+									{
+										data::config::framerate = clamp(val,12,9999);
+										data::config::updateini();
+									}
+								}
+							}
+						}
+					}
+
+					++it;
 				}
 			}
 
@@ -1076,6 +1410,7 @@ namespace Window
 
 		callbacks::DoButtonCallBacks();
 		callbacks::DoToggleCallBacks();
+		callbacks::DoLabelFieldCallBacks();
 
 		callbacks::DoInputCallbacksOnScreen(); //local area
 		callbacks::DoInput();
@@ -1086,7 +1421,7 @@ namespace Window
 			UI::SpawnerDrop::WipeDrop();
 			data::wipedrop = false;
 		}
-
+		
 		if (::debug)
 		{
 			::Window::debug();

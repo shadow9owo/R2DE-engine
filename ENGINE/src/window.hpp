@@ -11,6 +11,7 @@ namespace Window
 {
 	namespace callbacks
 	{
+		extern void DoLabelFieldCallBacks();
 		extern void WipeLayer(Types::Layer input);
 		extern void UpdateDebugValues(int arg, void* ptr);
 		extern void RenderAllLayers();

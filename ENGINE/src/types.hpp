@@ -31,6 +31,7 @@ namespace Types
         constexpr int LIST_WINDOW_ID = 4;
         constexpr int SETTINGS_WINDOW_ID = 5;
         constexpr int VSYNC_TOGGLE = 6;
+		constexpr int FRAMERATE_INPUT = 7;
     }
     
     struct Texture
@@ -88,10 +89,14 @@ namespace Types
     struct InputLabel
     {
         rl::Rectangle rect;
-        std::string Label = {};
+        Label Label = {};
         rl::Color bgcolor = { 192,192,192,255 };
+        std::string value = {};
+		std::string regex = ".*";
+        int scrolloffset = 0;
         bool focused = false;
         void (*callback)() = nullptr; //on char pressed
+		int uniqueid = -1;
     };
 
     enum UIObjectType
