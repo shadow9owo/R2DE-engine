@@ -1095,6 +1095,8 @@ namespace Window
 					return a.priority < b.priority;
 				});
 
+			bool cfocused = false;
+
 			for (Types::Layer& i : data::Layers)
 			{
 				auto& objs = i.objects;
@@ -1107,20 +1109,18 @@ namespace Window
 					{
 						rl::Rectangle fieldRect = j.ilb.rect;
 
-						if (rl::IsMouseButtonPressed(0))
+						if (rl::CheckCollisionRecs(fieldRect, { mouse.x, mouse.y, 1, 1 }))
 						{
-							if (rl::CheckCollisionRecs(fieldRect, { mouse.x, mouse.y, 1, 1 }))
-							{
-								j.ilb.focused = true;
-							}
-							else
-							{
-								j.ilb.focused = false;
-							}
+							j.ilb.focused = true;
+						}
+						else
+						{
+							j.ilb.focused = false;
 						}
 
 						if (j.ilb.focused)
 						{
+							cfocused = true;
 							int key = 0;
 							while ((key = rl::GetCharPressed()) != 0)
 							{
@@ -1159,20 +1159,18 @@ namespace Window
 								a.ilb.rect.height
 							};
 
-							if (rl::IsMouseButtonPressed(0))
+							if (rl::CheckCollisionRecs(fieldRect, { mouse.x, mouse.y, 1, 1 }))
 							{
-								if (rl::CheckCollisionRecs(fieldRect, { mouse.x, mouse.y, 1, 1 }))
-								{
-									a.ilb.focused = true;
-								}
-								else
-								{
-									a.ilb.focused = false;
-								}
+								a.ilb.focused = true;
+							}
+							else
+							{
+								a.ilb.focused = false;
 							}
 
 							if (a.ilb.focused)
 							{
+								cfocused = true;
 								int key = 0;
 								while ((key = rl::GetCharPressed()) != 0)
 								{
@@ -1239,6 +1237,15 @@ namespace Window
 
 					++it;
 				}
+			}
+
+			if (cfocused)
+			{
+				rl::SetMouseCursor(rl::MOUSE_CURSOR_IBEAM);
+			}
+			else 
+			{
+				rl::SetMouseCursor(rl::MOUSE_CURSOR_DEFAULT);
 			}
 
 			return;
