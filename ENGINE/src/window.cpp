@@ -33,266 +33,6 @@ namespace Window
 
 	namespace Utils
 	{
-		void RenderSubUIElement(Types::UIObject _Object)
-		{
-			if (_Object.type == Types::_Button)
-			{
-				Types::Button& btn = _Object.btn;
-
-				rl::Rectangle getsize = GetButtonSize(btn);
-
-				getsize.width = clamp(getsize.width, (int)btn.MinMax.x, (int)btn.MinMax.width);
-				getsize.height = clamp(getsize.height, (int)btn.MinMax.y, (int)btn.MinMax.height);
-
-				rl::Vector2 text = MeasureTextEx(btn.font, btn.text.c_str(), btn.fontsize, 0.2f);
-
-				rl::Color bgColor = btn.hovering ? btn.Onhover : btn.Def;
-				rl::DrawRectanglePro({ btn.position.x, btn.position.y, getsize.width, getsize.height }, { 0,0 }, 0, bgColor);
-
-				rl::Vector2 textPos = btn.position;
-
-				switch (btn.pivot)
-				{
-				case Types::PIVOT::TopLeft:
-					textPos.x -= getsize.width * 0.5f;
-					textPos.y -= getsize.height * 0.5f;
-					break;
-
-				case Types::PIVOT::TopMiddle:
-					textPos.x -= text.x * 0.5f;
-					textPos.y -= getsize.height * 0.5f;
-					break;
-
-				case Types::PIVOT::TopRight:
-					textPos.x -= (getsize.width - text.x);
-					textPos.y -= getsize.height * 0.5f;
-					break;
-
-				case Types::PIVOT::MiddleLeft:
-					textPos.x -= getsize.width * 0.5f;
-					textPos.y -= text.y * 0.5f;
-					break;
-
-				case Types::PIVOT::Middle:
-					textPos.x -= text.x * 0.5f;
-					textPos.y -= text.y * 0.5f;
-					break;
-
-				case Types::PIVOT::MiddleRight:
-					textPos.x -= (getsize.width - text.x);
-					textPos.y -= text.y * 0.5f;
-					break;
-
-				case Types::PIVOT::BottomLeft:
-					textPos.x -= getsize.width * 0.5f;
-					textPos.y -= (getsize.height - text.y);
-					break;
-
-				case Types::PIVOT::BottomMiddle:
-					textPos.x -= text.x * 0.5f;
-					textPos.y -= (getsize.height - text.y);
-					break;
-
-				case Types::PIVOT::BottomRight:
-					textPos.x -= (getsize.width - text.x);
-					textPos.y -= (getsize.height - text.y);
-					break;
-				}
-
-
-				rl::DrawTextPro(btn.font, btn.text.c_str(), textPos, { 0,0 }, 0, btn.fontsize, 0.2f, rl::WHITE);
-			}
-			else if (_Object.type == Types::_Label)
-			{
-				Types::Label& lbl = _Object.lbl;
-
-				rl::Vector2 textSize = MeasureTextEx(lbl.font, lbl.text.c_str(), lbl.fontsize, 0.2f);
-				rl::Vector2 pos = lbl.position;
-
-				switch (lbl.pivot)
-				{
-				case Types::PIVOT::TopLeft:
-					// pos stays as-is
-					break;
-
-				case Types::PIVOT::TopMiddle:
-					pos.x -= textSize.x * 0.5f;
-					break;
-
-				case Types::PIVOT::TopRight:
-					pos.x -= textSize.x;
-					break;
-
-				case Types::PIVOT::MiddleLeft:
-					pos.y -= textSize.y * 0.5f;
-					break;
-
-				case Types::PIVOT::Middle:
-					pos.x -= textSize.x * 0.5f;
-					pos.y -= textSize.y * 0.5f;
-					break;
-
-				case Types::PIVOT::MiddleRight:
-					pos.x -= textSize.x;
-					pos.y -= textSize.y * 0.5f;
-					break;
-
-				case Types::PIVOT::BottomLeft:
-					pos.y -= textSize.y;
-					break;
-
-				case Types::PIVOT::BottomMiddle:
-					pos.x -= textSize.x * 0.5f;
-					pos.y -= textSize.y;
-					break;
-
-				case Types::PIVOT::BottomRight:
-					pos.x -= textSize.x;
-					pos.y -= textSize.y;
-					break;
-				}
-
-				rl::DrawTextPro(lbl.font, lbl.text.c_str(), pos, { 0,0 }, 0, lbl.fontsize, 0.2f, lbl.Def);
-			}
-			else if (_Object.type == Types::_Toggle)
-			{
-				Types::Toggle& tog = _Object.tog;
-
-				if (tog.toggled)
-				{
-					rl::DrawTexturePro(tog.toggletexture, { 0,0,(float)tog.toggletexture.width,(float)tog.toggletexture.height }, tog.rect, { 0,0 }, 0, { 255,255,255,255 });
-				}
-				else
-				{
-					rl::DrawTexturePro(tog.toggletexture, { 0,0,(float)tog.toggletexture.width,(float)tog.toggletexture.height }, tog.rect, { 0,0 }, 0, { 64,64,64,255 });
-				}
-
-				Types::Label& lbl = tog.text;
-
-				rl::Vector2 textSize = MeasureTextEx(lbl.font, lbl.text.c_str(), lbl.fontsize, 0.2f);
-				rl::Vector2 pos = { lbl.position.x + tog.rect.x,lbl.position.y + tog.rect.y };
-
-				switch (lbl.pivot)
-				{
-				case Types::PIVOT::TopLeft:
-					// pos stays as-is
-					break;
-
-				case Types::PIVOT::TopMiddle:
-					pos.x -= textSize.x * 0.5f;
-					break;
-
-				case Types::PIVOT::TopRight:
-					pos.x -= textSize.x;
-					break;
-
-				case Types::PIVOT::MiddleLeft:
-					pos.y -= textSize.y * 0.5f;
-					break;
-
-				case Types::PIVOT::Middle:
-					pos.x -= textSize.x * 0.5f;
-					pos.y -= textSize.y * 0.5f;
-					break;
-
-				case Types::PIVOT::MiddleRight:
-					pos.x -= textSize.x;
-					pos.y -= textSize.y * 0.5f;
-					break;
-
-				case Types::PIVOT::BottomLeft:
-					pos.y -= textSize.y;
-					break;
-
-				case Types::PIVOT::BottomMiddle:
-					pos.x -= textSize.x * 0.5f;
-					pos.y -= textSize.y;
-					break;
-
-				case Types::PIVOT::BottomRight:
-					pos.x -= textSize.x;
-					pos.y -= textSize.y;
-					break;
-				}
-
-				rl::DrawTextPro(lbl.font, lbl.text.c_str(), pos, { 0,0 }, 0, lbl.fontsize, 0.2f, lbl.Def);
-			}
-			else if (_Object.type == Types::_InputLabel)
-			{
-				auto& ilb = _Object.ilb;
-
-				rl::DrawRectangleRec(ilb.rect, ilb.bgcolor);
-
-				Types::Label& lbl = ilb.Label;
-
-				const char* drawText = nullptr;
-
-				if (ilb.value.empty())
-				{
-					drawText = "Input a value.";
-					ilb.scrolloffset = 0;
-				}
-				else
-				{
-					if (ilb.scrolloffset > (int)ilb.value.size())
-						ilb.scrolloffset = 0;
-
-					drawText = ilb.value.c_str() + ilb.scrolloffset;
-				}
-
-				rl::Vector2 textSize = MeasureTextEx(lbl.font, drawText, lbl.fontsize, 0.2f);
-				rl::Vector2 pos = {
-					ilb.rect.x + lbl.position.x,
-					ilb.rect.y + lbl.position.y
-				};
-
-				switch (lbl.pivot)
-				{
-				case Types::PIVOT::TopLeft:
-					break;
-
-				case Types::PIVOT::TopMiddle:
-					pos.x -= textSize.x * 0.5f;
-					break;
-
-				case Types::PIVOT::TopRight:
-					pos.x -= textSize.x;
-					break;
-
-				case Types::PIVOT::MiddleLeft:
-					pos.y -= textSize.y * 0.5f;
-					break;
-
-				case Types::PIVOT::Middle:
-					pos.x -= textSize.x * 0.5f;
-					pos.y -= textSize.y * 0.5f;
-					break;
-
-				case Types::PIVOT::MiddleRight:
-					pos.x -= textSize.x;
-					pos.y -= textSize.y * 0.5f;
-					break;
-
-				case Types::PIVOT::BottomLeft:
-					pos.y -= textSize.y;
-					break;
-
-				case Types::PIVOT::BottomMiddle:
-					pos.x -= textSize.x * 0.5f;
-					pos.y -= textSize.y;
-					break;
-
-				case Types::PIVOT::BottomRight:
-					pos.x -= textSize.x;
-					pos.y -= textSize.y;
-					break;
-				}
-
-				rl::DrawTextPro(lbl.font, drawText, pos, { 0,0 }, 0, lbl.fontsize, 0.2f, lbl.Def);
-			}
-			return;
-		}
-
 		void ToggleClicked(Types::Toggle* toggle)
 		{
 			Types::Toggle* _toggle = static_cast<Types::Toggle*>(toggle);
@@ -328,7 +68,7 @@ namespace Window
 		{
 			if (rl::IsKeyPressed(rl::KEY_ESCAPE))
 			{
-				return callbacks::WipeLayer(*input);
+				return input->WipeAwait();
 			}
 			else {
 				for (Types::UIObject& a : input->objects)
@@ -526,8 +266,8 @@ namespace Window
 		Types::Layer debug = {};
 		debug.priority = Types::LayerInts::LAYER_DEBUG;
 
-		Types::Label PosInfo = { 24,std::to_string(mouse.x) + " || " + std::to_string(mouse.y),rl::GetFontDefault(),Types::PIVOT::TopLeft,{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX } ,{ 0,8 } ,callbacks::UpdateDebugValues,{ 0,0,0,255 } ,{ 0,0,0,255} ,1 };
-		Types::Label FrameRate = { 24,std::to_string(rl::GetFPS()) + " || " + std::to_string(rl::GetFrameTime()),rl::GetFontDefault(),Types::PIVOT::TopLeft,{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX} ,{0,PosInfo.position.y + 24} ,callbacks::UpdateDebugValues,{0,0,0,255} ,{0,0,0,255},2 };
+		Types::Label PosInfo = { 24,std::to_string(mouse.x) + " || " + std::to_string(mouse.y),rl::GetFontDefault(),Types::PIVOT::TopLeft,{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX } ,{ 0,8 } ,callbacks::UpdateDebugValues,{ 0,0,0,255 } ,{ 0,0,0,255} ,Types::UniqueIds::MOUSE_POS_ID };
+		Types::Label FrameRate = { 24,std::to_string(rl::GetFPS()) + " || " + std::to_string(rl::GetFrameTime()),rl::GetFontDefault(),Types::PIVOT::TopLeft,{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX} ,{0,PosInfo.position.y + 24} ,callbacks::UpdateDebugValues,{0,0,0,255} ,{0,0,0,255},Types::UniqueIds::FPS_ID };
 
 		debug.objects.push_back(Types::UIObject(PosInfo));
 		debug.objects.push_back(Types::UIObject(FrameRate));
@@ -643,32 +383,16 @@ namespace Window
 			{
 				::Types::Layer a;
 				a.priority = ::Types::LayerInts::LAYER_POPUP_MENU;
-				callbacks::WipeLayer(a);
+				a.WipeAwait();
 			}
 		}
 	}
 
 	namespace callbacks
 	{
-		void WipeLayer(Types::Layer input)
+		void UpdateDebugValues(void* ptr)
 		{
-			for (auto it = data::Layers.begin(); it != data::Layers.end(); )
-			{
-				if (it->priority == input.priority)
-				{
-					it = data::Layers.erase(it);
-				}
-				else
-				{
-					++it;
-				}
-			}
-			return;
-		}
-
-		void UpdateDebugValues(int arg, void* ptr)
-		{
-			switch (arg)
+			switch (static_cast<Types::Label*>(ptr)->uniqueid)
 			{
 			case Types::UniqueIds::MOUSE_POS_ID:
 				static_cast<Types::Label*>(ptr)->text = std::to_string(mouse.x) + " || " + std::to_string(mouse.y);
@@ -831,15 +555,16 @@ namespace Window
 							rl::BLACK
 						);
 
+						auto b = win.elements;
 						for (size_t i = 0; i != win.elements.size(); i++)
 						{
-							auto a = win.elements[i];
+							auto& a = b[i];
 							switch (win.elements[i].type)
 							{
 							case Types::_Button:
 								a.btn.position.x = a.btn.position.x + rect.x;
 								a.btn.position.y = a.btn.position.y + rect.y;
-								Utils::RenderSubUIElement(a);
+								a.win->RenderSubUIElementHelper(a);
 								break;
 							case Types::_Window:
 								assert("not implemented");
@@ -847,17 +572,17 @@ namespace Window
 							case Types::_Label:
 								a.lbl.position.x = a.lbl.position.x + rect.x;
 								a.lbl.position.y = a.lbl.position.y + rect.y;
-								Utils::RenderSubUIElement(a);
+								a.win->RenderSubUIElementHelper(a);
 								break;
 							case Types::_InputLabel:
 								a.ilb.rect.x = a.ilb.rect.x + rect.x;
 								a.ilb.rect.y = a.ilb.rect.y + rect.y;
-								Utils::RenderSubUIElement(a);
+								a.win->RenderSubUIElementHelper(a);
 								break;
 							case Types::_Toggle:
 								a.tog.rect.x = a.tog.rect.x + rect.x;
 								a.tog.rect.y = a.tog.rect.y + rect.y;
-								Utils::RenderSubUIElement(a);
+								a.win->RenderSubUIElementHelper(a);
 								break;
 							default:
 								break;
@@ -1046,7 +771,7 @@ namespace Window
 								if (j.tog.callback)
 								{
 									::Utils::Log("Toggled");
-									j.tog.callback(&j.tog);
+									j.tog.Pressed();
 								}
 							}
 						}
@@ -1065,7 +790,7 @@ namespace Window
 										if (a.tog.callback)
 										{
 											::Utils::Log("Toggled");
-											a.tog.callback(&a.tog);
+											a.tog.Pressed();
 										}
 									}
 								}
@@ -1296,7 +1021,7 @@ namespace Window
 							{
 								if (j.btn.exec)
 								{
-									j.btn.exec();
+									j.btn.Exec();
 								}
 								else
 								{
@@ -1333,7 +1058,7 @@ namespace Window
 								{
 									if (a.btn.exec)
 									{
-										a.btn.exec();
+										a.btn.Exec();
 									}
 									else
 									{
@@ -1405,11 +1130,11 @@ namespace Window
 				{
 					if (obj.type == Types::_Label && obj.lbl.uniqueid == Types::UniqueIds::MOUSE_POS_ID)
 					{
-						obj.lbl.callback(Types::UniqueIds::MOUSE_POS_ID, &obj.lbl);
+						obj.lbl.Render();
 					}
 					else if (obj.type == Types::_Label && obj.lbl.uniqueid == Types::UniqueIds::FPS_ID)
 					{
-						obj.lbl.callback(Types::UniqueIds::FPS_ID, &obj.lbl);
+						obj.lbl.Render();
 					}
 				}
 				break;

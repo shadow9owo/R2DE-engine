@@ -4,7 +4,15 @@ namespace rl
 {
 #include <raylib.h>
 }
-#include "types.hpp"
+
+namespace Types {
+    class Button;
+    class Label;
+    class Toggle;
+    class InputLabel;
+    class UIObject;
+    class Window;
+}
 
 extern int offset;
 extern bool debug;

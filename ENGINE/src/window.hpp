@@ -12,8 +12,7 @@ namespace Window
 	namespace callbacks
 	{
 		extern void DoLabelFieldCallBacks();
-		extern void WipeLayer(Types::Layer input);
-		extern void UpdateDebugValues(int arg, void* ptr);
+		extern void UpdateDebugValues(void* ptr);
 		extern void RenderAllLayers();
 		extern void DoInput();
 		extern void DoButtonCallBacks();

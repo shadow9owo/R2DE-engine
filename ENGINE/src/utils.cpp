@@ -6,12 +6,9 @@ namespace rl
 {
 	#include <raylib.h>
 }
-
 #include <iostream>
 #include <sys/stat.h>
-
 #include "types.hpp"
-
 #include "main.hpp"
 #include "utils.hpp"
 
