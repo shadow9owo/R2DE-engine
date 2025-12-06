@@ -5,7 +5,6 @@ namespace rl
 #include <raylib.h>
 }
 
-#include "types.hpp"
 
 namespace Window
 {

@@ -12,6 +12,8 @@ namespace rl
 #include "main.hpp"
 #include "utils.hpp"
 
+#include "Types/Button.hpp"
+
 const rl::Vector2 BaseTexture = { 1280,720 };
 
 int offset = 16; //idk depends ig
@@ -39,7 +41,7 @@ bool HasProjects()
 	return true;
 }
 
-rl::Rectangle GetButtonSize(Types::Button& button)
+rl::Rectangle GetButtonSize(Button& button)
 {
 	rl::Vector2 sizeinfo = rl::MeasureTextEx(button.font, button.text.c_str(), (int)button.fontsize, 0.2f);
 	rl::Rectangle rect = { button.position.x, button.position.y, sizeinfo.x * 2, sizeinfo.y * 2 };
@@ -52,7 +54,7 @@ rl::Rectangle GetButtonSize(Types::Button& button)
 	return rect;
 }
 
-rl::Rectangle GetToggleSize(Types::Button& button)
+rl::Rectangle GetToggleSize(Button& button)
 {
 	rl::Vector2 sizeinfo = rl::MeasureTextEx(button.font, button.text.c_str(), (int)button.fontsize, 0.2f);
 	rl::Rectangle rect = { button.position.x, button.position.y, sizeinfo.x * 2, sizeinfo.y * 2 };
@@ -65,7 +67,7 @@ rl::Rectangle GetToggleSize(Types::Button& button)
 	return rect;
 }
 
-rl::Vector2 Qmessure(Types::Button& button)
+rl::Vector2 Qmessure(Button& button)
 {
 	rl::Rectangle rect = GetButtonSize(button);
 	return { rect.width, rect.height };

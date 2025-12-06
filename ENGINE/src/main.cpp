@@ -7,6 +7,7 @@ namespace rl
     #include "raylib.h"
 }
 
+#include "types.hpp"
 #include "Utils/Log.hpp"
 #include "window.hpp"
 #include "main.hpp"

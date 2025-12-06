@@ -27,15 +27,21 @@ namespace rl
 #include "Utils/textures/Textures.hpp"
 #include <regex>
 
+#include "Types/Toggle.hpp"
+#include "Types/Label.hpp"
+#include "Types/InputLabel.hpp"
+#include "Types/UIObject.hpp"
+#include "Types/Window.hpp"
+
 namespace Window
 {
 	rl::Vector2 mouse = { 0,0 };
 
 	namespace Utils
 	{
-		void ToggleClicked(Types::Toggle* toggle)
+		void ToggleClicked(Toggle* toggle)
 		{
-			Types::Toggle* _toggle = static_cast<Types::Toggle*>(toggle);
+			Toggle* _toggle = static_cast<Toggle*>(toggle);
 
 			_toggle->toggled = !_toggle->toggled;
 
@@ -64,19 +70,19 @@ namespace Window
 			return;
 		}
 
-		void WindowTick(Types::Layer* input)
+		void WindowTick(Layer* input)
 		{
 			if (rl::IsKeyPressed(rl::KEY_ESCAPE))
 			{
 				return input->WipeAwait();
 			}
 			else {
-				for (Types::UIObject& a : input->objects)
+				for (UIObject& a : input->objects)
 				{
-					if (a.type != Types::_Window || !a.win)
+					if (a.type != _Window || !a.win)
 						continue;
 
-					if (a.type == Types::_Window)
+					if (a.type == _Window)
 					{
 						if (rl::IsMouseButtonDown(0))
 						{
@@ -172,7 +178,7 @@ namespace Window
 			WindowLayer.priority = ::Types::LayerInts::LAYER_WINDOW_DEFAULT;
 			WindowLayer.objects = {};
 
-			Types::Window* win = new Types::Window{
+			Window* win = new Window{
 				false,
 				"Settings UI",
 				{200, 200, 200, 200},
@@ -182,13 +188,13 @@ namespace Window
 				&Utils::WindowTick
 			};
 
-			Types::Label text;
+			Label text;
 			text.text = "Vsync toggle";
 			text.fontsize = 12;
 			text.position = { CHECKMARKHEIGHT, CHECKMARKHEIGHT / 2 };
 			text.pivot = Types::PIVOT::TopLeft;
 
-			Types::Toggle Vsync;
+			Toggle Vsync;
 			Vsync.uniqueid = Types::UniqueIds::VSYNC_TOGGLE;
 			Vsync.callback = &ToggleClicked;
 			Vsync.toggletexture = Textures::Checkmark();
@@ -196,7 +202,7 @@ namespace Window
 			Vsync.text = text;
 			Vsync.toggled = data::config::vsync;
 
-			Types::InputLabel FpsInput;
+			InputLabel FpsInput;
 
 			FpsInput.rect = { TITLEBARHEIGHT + 2, 100, 150, 24 };
 			FpsInput.regex = R"(^\d+$)";
@@ -210,7 +216,7 @@ namespace Window
 				FpsInput.rect.height * 0.5f
 			};
 
-			Types::Label fps;
+			Label fps;
 			fps.text = "Fps limiter";
 			fps.fontsize = 12;
 			fps.position = { TITLEBARHEIGHT + 2, 80 };
@@ -237,15 +243,15 @@ namespace Window
 
 		data::Layers.reserve(128);
 
-		Types::Button Quit = { false, Utils::Quit,"Quit",false,{0,670},24,rl::GetFontDefault(),{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
+		Button Quit = { false, Utils::Quit,"Quit",false,{0,670},24,rl::GetFontDefault(),{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
 
-		Types::Button Save = { false, Utils::Save,"Save",false,{0,670},24,rl::GetFontDefault(),{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
+		Button Save = { false, Utils::Save,"Save",false,{0,670},24,rl::GetFontDefault(),{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
 
-		Types::Button Load = { false, Utils::Load,"Load",false,{0,670},24,rl::GetFontDefault(),{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
+		Button Load = { false, Utils::Load,"Load",false,{0,670},24,rl::GetFontDefault(),{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
 
-		Types::Button Build = { false, Utils::Build,"Build",false,{0,670},24,rl::GetFontDefault(),{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
+		Button Build = { false, Utils::Build,"Build",false,{0,670},24,rl::GetFontDefault(),{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
 
-		Types::Button Settings = { false, Utils::Settings,"Settings",false,{0,670},24,rl::GetFontDefault(),{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
+		Button Settings = { false, Utils::Settings,"Settings",false,{0,670},24,rl::GetFontDefault(),{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX},Types::PIVOT::Middle, rl::DARKGRAY , rl::BLACK };
 
 		Quit.position.x = offset;
 		Save.position.x = Quit.position.x + Qmessure(Quit).x + offset;
@@ -266,8 +272,8 @@ namespace Window
 		Types::Layer debug = {};
 		debug.priority = Types::LayerInts::LAYER_DEBUG;
 
-		Types::Label PosInfo = { 24,std::to_string(mouse.x) + " || " + std::to_string(mouse.y),rl::GetFontDefault(),Types::PIVOT::TopLeft,{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX } ,{ 0,8 } ,callbacks::UpdateDebugValues,{ 0,0,0,255 } ,{ 0,0,0,255} ,Types::UniqueIds::MOUSE_POS_ID };
-		Types::Label FrameRate = { 24,std::to_string(rl::GetFPS()) + " || " + std::to_string(rl::GetFrameTime()),rl::GetFontDefault(),Types::PIVOT::TopLeft,{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX} ,{0,PosInfo.position.y + 24} ,callbacks::UpdateDebugValues,{0,0,0,255} ,{0,0,0,255},Types::UniqueIds::FPS_ID };
+		Label PosInfo = { 24,std::to_string(mouse.x) + " || " + std::to_string(mouse.y),rl::GetFontDefault(),Types::PIVOT::TopLeft,{ INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX } ,{ 0,8 } ,callbacks::UpdateDebugValues,{ 0,0,0,255 } ,{ 0,0,0,255} ,Types::UniqueIds::MOUSE_POS_ID };
+		Label FrameRate = { 24,std::to_string(rl::GetFPS()) + " || " + std::to_string(rl::GetFrameTime()),rl::GetFontDefault(),Types::PIVOT::TopLeft,{INT16_MIN,INT16_MIN,INT16_MAX,INT16_MAX} ,{0,PosInfo.position.y + 24} ,callbacks::UpdateDebugValues,{0,0,0,255} ,{0,0,0,255},Types::UniqueIds::FPS_ID };
 
 		debug.objects.push_back(Types::UIObject(PosInfo));
 		debug.objects.push_back(Types::UIObject(FrameRate));
@@ -304,7 +310,7 @@ namespace Window
 				WindowLayer.priority = ::Types::LayerInts::LAYER_WINDOW_DEFAULT;
 				WindowLayer.objects = {};
 
-				Types::Window* win = new Types::Window{
+				Window* win = new Window{
 					false,
 					"Spawn UI",
 					{200, 200, 200, 200},
@@ -432,7 +438,7 @@ namespace Window
 				{
 					if (j.type == Types::_Button)
 					{
-						Types::Button& btn = j.btn;
+						Button& btn = j.btn;
 
 						rl::Rectangle getsize = GetButtonSize(btn);
 
